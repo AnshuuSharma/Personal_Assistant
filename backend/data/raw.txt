@@ -1,0 +1,183 @@
+# SECTION: Introduction
+
+Anshu is a Computer Science graduate from Truba Institute of Engineering 
+and Information Technology, Bhopal, currently based in Pune, India. She is 
+looking for entry-level opportunities in the AI and Machine Learning field. 
+She is a fresher with hands-on experience building real-world AI 
+systems, particularly in agentic AI, LLM pipelines, and RAG-based 
+applications. She is passionate about building practical AI tools that solve 
+real problems and is actively seeking roles where she can contribute to AI 
+product development or research.
+
+# SECTION: Education
+
+Anshu completed her Bachelor of Technology in Computer Science from Truba 
+Institute of Engineering and Information Technology, Bhopal, graduating in 
+2025 with a CGPA of 7.99. Before that, she completed her Class XII from 
+Vidisha, Madhya Pradesh under the CBSE board in 2021, scoring 81 percent.
+And class X from Vidisha under the CBSE board in 2019 scoring 88 percent 
+
+# SECTION: Skills - Programming and Core CS
+
+Anshu is proficient in Python, which is her primary language for building 
+AI and backend systems. She also has knowledge of C++ and is familier with 
+Scikit-learn for machine learning tasks. Her core CS concepts include 
+Object-Oriented Programming, Exception Handling,data structures & algorithms and 
+understanding of Machine Learning algorithms including classification, regression, and clustering.
+
+# SECTION: Skills - AI and LLM
+
+Anshu has hands-on experience in Agentic AI and LLM-based systems. She has 
+worked with LangGraph to build stateful multi-node agent pipelines, used the 
+Groq API for fast LLM inference, and has practical experience with Prompt 
+Engineering and Tool Orchestration. She is familiar with RAG (Retrieval 
+Augmented Generation) pipelines and is actively deepening her knowledge in 
+this area through her personal assistant project.
+
+# SECTION: Skills - Web and Backend
+
+Anshu has built and deployed backend systems using Flask and understands 
+REST API design. She is familiar with Docker for containerization and uses 
+Git for version control. She has experience deploying applications on Render 
+and Netlify.
+
+# SECTION: Skills - Data and Databases
+
+Anshu uses Pandas and NumPy for data manipulation and Matplotlib for 
+visualization. She has worked with MySQL for relational data management in 
+production-level backend systems.
+
+# SECTION: Project - ResumeIQ (Overview)
+
+ResumeIQ is Anshu's flagship AI project — a fully deployed agentic resume 
+analyzer built using LangGraph. It analyzes a candidate's resume against a 
+job description and provides detailed feedback including ATS score, skill gap 
+analysis, job market insights, and curated learning resources. The project is 
+live and accessible at https://agentic-resume-analyzer.netlify.app/ with a 
+Flask backend deployed on Render and a single-page frontend on Netlify.
+
+# SECTION: Project - ResumeIQ (Architecture and Workflow)
+
+ResumeIQ is built as a stateful LangGraph pipeline with 4 nodes: extract, 
+agent, tools, and analyze. When a user uploads their resume and a job 
+description, the system first uses PyMuPDF to extract raw text from the PDF. 
+The extract node then uses a llama-3.1-8b-instant model to parse this text 
+into a structured JSON containing skills, experience, projects, and required 
+and preferred skills from the JD. This structured data is stored in the 
+LangGraph state and passed forward through the pipeline.
+
+The agent node receives this structured data and makes an LLM call using the 
+20b parameter model to decide which tools to invoke based on the identified 
+skill gaps. The ATS keyword checker is hardcoded to always run, while the 
+agent autonomously chooses whether to call the Adzuna job market API and the 
+YouTube Data API based on what gaps it finds in the candidate's profile.
+
+The tools node executes the decided tools and updates the state with their 
+results. Finally the analyze node receives the full state — resume data, JD 
+data, and all tool results — and makes a third LLM call using the 20b model 
+with a structured prompt to generate a comprehensive analysis. The graph 
+structure is linear: extract → agent → tools → analyze → END. Chat 
+functionality is handled outside the graph, called directly from the REST API 
+endpoint.
+
+In total ResumeIQ makes 3 LLM calls per full analysis: one in the extract 
+node using the 8b model, one in the agent node, and one in the analyze node 
+both using the 20b model.
+
+# SECTION: Project - ResumeIQ (ATS Keyword Checker)
+
+The ATS keyword checker is a custom Python function Anshu built from scratch. 
+It computes a keyword match percentage between the resume and job description 
+using set intersection — finding matched keywords as the intersection of JD 
+words and resume words, and missing keywords as the difference. The match 
+percentage is calculated as the number of matched keywords divided by total JD 
+keywords multiplied by 100. It also checks resume formatting by verifying 
+whether standard sections like skills, education, projects, and experience 
+exist in the resume, and flags any missing sections as formatting issues. The 
+function returns the match percentage, top matched and missing keywords, 
+formatting issues, and an overall ATS pass or fail based on whether the match 
+percentage is above 60 percent and there are no formatting issues.
+
+# SECTION: Project - ResumeIQ (Tool Orchestration)
+
+ResumeIQ orchestrates 3 tools. The ATS keyword checker always runs as 
+described above. The Adzuna job market API is called when the agent identifies 
+skill gaps — it returns the number of active job listings for a skill and 
+average salary data, giving the candidate a real sense of how in-demand their 
+missing skills are in the current market. The YouTube Data API is called to 
+find relevant learning resources for the missing skills, so the candidate gets 
+actionable course recommendations directly in the analysis. The agent node 
+uses an LLM call to autonomously decide which of the latter two tools to 
+invoke based on the candidate's specific skill gaps.
+
+# SECTION: Project - ResumeIQ (Token Management and Chat)
+
+One of the hardest engineering challenges Anshu solved in ResumeIQ was 
+managing token usage wisely across the pipeline given the constraints of free 
+tier LLM APIs. With a resume, job description, and tool results all being fed 
+into prompts simultaneously, token usage can spike quickly. Anshu addressed 
+this by using a smaller 8b model for the extraction node where structured 
+output matters more than reasoning depth, and reserving the 20b model only 
+for the agent and analysis nodes where quality is critical. This dual model 
+architecture effectively doubled the token budget while maintaining output 
+quality.
+
+For chat memory Anshu implemented a custom history compression function that 
+keeps the first 2 messages for context and the last 10 messages for 
+continuity, discarding the middle of long conversations. This keeps the chat 
+context window lean without losing important context. Instead of sending the 
+full resume to every chat turn, only the extracted skills, experience, 
+projects, and missing skills are sent — significantly reducing per-turn token 
+consumption. Anshu is actively continuing to improve token efficiency in the 
+project.
+
+# SECTION: Project - ResumeIQ (Future Scope)
+
+Anshu has planned several meaningful extensions for ResumeIQ. A resume 
+rewrite tool that automatically rewrites the candidate's resume to better 
+match JD keywords and improve the ATS score is high on the list. An interview 
+mode is also planned where the system will conduct a mock interview based on 
+the resume and JD requirements, asking role-relevant questions and evaluating 
+answers. A multi-resume comparison feature is also being considered, allowing 
+candidates to compare two versions of their resume side by side against the 
+same JD.
+
+# SECTION: Project - Smart Banking
+
+Smart Banking is an independent project Anshu built to apply machine learning 
+to real-world banking problems. The system has two core prediction modules. 
+The first is a credit risk model built using XGBoost, trained on a publicly 
+available Kaggle dataset, that predicts the probability of a customer 
+defaulting on a loan. The model achieves a recall of 81 percent, meaning it 
+correctly identifies 81 percent of actual defaulters — a critical metric in 
+banking where missing a high-risk customer is more costly than a false alarm. 
+The second module is a customer lifetime value estimator built using Linear 
+Regression that outputs a CLV score representing the predicted long term value 
+of a customer to the bank. Both models are integrated into a Flask backend as 
+REST APIs for real-time predictions, with MySQL handling relational data 
+management. The entire backend is containerized using Docker for consistent 
+and reliable deployment.
+
+# SECTION: Experience
+
+Anshu completed a Web Development internship at Scoutbizz International 
+from June 2025 to August 2025. During this internship she worked on 
+production-level web applications and client websites. She customized Shopify 
+storefronts using HTML, CSS, and Liquid templates, and collaborated with 
+designers and developers to improve website performance and UI quality.
+
+# SECTION: Certifications
+
+Anshu holds the Microsoft Certified Azure Fundamentals certification, 
+demonstrating foundational knowledge of cloud concepts and Microsoft Azure 
+services.
+
+# SECTION: Contact and Availability
+
+Anshu is currently based in Pune, India and is originally from Vidisha, 
+Madhya Pradesh. She is actively looking for full-time opportunities in AI, 
+Machine Learning, or backend engineering roles. She is open to both remote 
+and on-site positions. Recruiters can reach her at anshusharma27165@gmail.com or 
+connect with her on LinkedIn at https://www.linkedin.com/in/anshu-sharma-33b979268/. She is excited to 
+bring her skills in agentic AI and LLM systems to a team working on 
+impactful products.
