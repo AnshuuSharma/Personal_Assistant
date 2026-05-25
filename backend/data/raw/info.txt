@@ -142,21 +142,54 @@ answers. A multi-resume comparison feature is also being considered, allowing
 candidates to compare two versions of their resume side by side against the 
 same JD.
 
-# SECTION: Project - Smart Banking
+# SECTION: Project - Personal Assistant (Overview)
 
-Smart Banking is an independent project Anshu built to apply machine learning 
-to real-world banking problems. The system has two core prediction modules. 
-The first is a credit risk model built using XGBoost, trained on a publicly 
-available Kaggle dataset, that predicts the probability of a customer 
-defaulting on a loan. The model achieves a recall of 81 percent, meaning it 
-correctly identifies 81 percent of actual defaulters — a critical metric in 
-banking where missing a high-risk customer is more costly than a false alarm. 
-The second module is a customer lifetime value estimator built using Linear 
-Regression that outputs a CLV score representing the predicted long term value 
-of a customer to the bank. Both models are integrated into a Flask backend as 
-REST APIs for real-time predictions, with MySQL handling relational data 
-management. The entire backend is containerized using Docker for consistent 
-and reliable deployment.
+Anshu built an AI-powered personal assistant that acts as a talking 
+portfolio for recruiters and hiring managers. The assistant can answer 
+questions about Anshu's skills, projects, education, and experience. It 
+is deployed as a full stack web application with a FastAPI backend and a 
+clean dark-themed frontend. Recruiters can either type questions freely 
+or use quick-access buttons for common topics like skills, education, and 
+projects.
+
+# SECTION: Project - Personal Assistant (Architecture)
+
+The personal assistant is built on a RAG (Retrieval Augmented Generation) 
+pipeline. When a recruiter asks a question, the query is converted into a 
+vector embedding using the all-MiniLM-L6-v2 sentence transformer model. 
+ChromaDB is used as the local vector database storing 16 chunks of 
+structured information about Anshu. Semantic search retrieves the most 
+relevant chunks which are passed as context to Gemini 2.0 Flash for 
+response generation. The system maintains short term session-based chat 
+memory by keeping the last 6 conversation turns, allowing natural 
+follow-up questions without repeating context.
+
+# SECTION: Project - Personal Assistant (ResumeIQ Integration)
+
+The personal assistant integrates Anshu's ResumeIQ project as a live tool. 
+Recruiters can paste a job description directly into the assistant and it 
+will automatically call the ResumeIQ backend API with Anshu's resume and 
+the provided JD. ResumeIQ runs its full agentic LangGraph pipeline — ATS 
+keyword analysis, job market data from Adzuna, and course recommendations 
+from YouTube — and returns a detailed analysis. The personal assistant then 
+formats this analysis into a clean response. This makes the assistant not 
+just a static Q&A system but a live demonstration of Anshu's agentic AI 
+work, where two of her projects work together as an integrated system.
+
+# SECTION: Project - Personal Assistant (Tech Stack and Decisions)
+
+The personal assistant is built using FastAPI for the async backend, 
+ChromaDB for local vector storage, sentence-transformers for embeddings, 
+and Gemini 2.0 Flash as the LLM for response generation. Anshu chose 
+ChromaDB over cloud vector databases because the data is small and 
+personal, making a local solution simpler and free. She chose not to use 
+LangGraph for this project unlike ResumeIQ, because the pipeline is 
+linear with no complex state management or conditional routing — adding 
+LangGraph would have been over-engineering. This decision demonstrates 
+her ability to choose the right tool for the right problem rather than 
+using the same stack for everything. Session memory is handled using a 
+simple in-memory dictionary rather than a database, keeping the 
+architecture lightweight for a portfolio use case.
 
 # SECTION: Experience
 

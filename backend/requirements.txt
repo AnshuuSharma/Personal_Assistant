@@ -1,2 +1,4 @@
 sentence-transformers
 chromadb
+dotenv
+google-genai
