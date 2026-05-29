@@ -47,6 +47,35 @@ Anshu uses Pandas and NumPy for data manipulation and Matplotlib for
 visualization. She has worked with MySQL for relational data management in 
 production-level backend systems.
 
+
+# SECTION: Projects Overview
+
+Anshu has built two end-to-end AI projects that 
+work together as an integrated portfolio system.
+
+Her first project, ResumeIQ, is a fully deployed 
+agentic resume analyzer built using LangGraph with 
+a 5 node pipeline. It analyzes a candidate's resume 
+against a job description using ATS keyword matching, 
+Adzuna job market data, and YouTube course 
+recommendations. It makes 3 LLM calls per analysis 
+and is live at https://agentic-resume-analyzer.netlify.app/
+
+Her second project is this Personal Assistant — an 
+AI powered talking portfolio built using a RAG 
+pipeline with ChromaDB, sentence transformers, 
+Gemini 3.5 Flash, and FastAPI. Recruiters can ask 
+anything about Anshu's background or paste a job 
+description to get a live ResumeIQ analysis run 
+against her resume.
+
+What makes these two projects compelling together 
+is that they are integrated — the personal assistant 
+calls ResumeIQ as a live tool, making two of Anshu's 
+projects work together as one system. This 
+demonstrates her ability to design, build, and 
+connect end-to-end AI systems from scratch.
+
 # SECTION: Project - ResumeIQ (Overview)
 
 ResumeIQ is Anshu's flagship AI project — a fully deployed agentic resume 
@@ -204,6 +233,90 @@ designers and developers to improve website performance and UI quality.
 Anshu holds the Microsoft Certified Azure Fundamentals certification, 
 demonstrating foundational knowledge of cloud concepts and Microsoft Azure 
 services.
+
+# SECTION: Why AI - Anshu's Motivation
+
+Anshu's journey into AI started with Data Science, 
+which sparked her curiosity about Machine Learning, 
+and eventually led her to Agentic AI systems. What 
+drew her deeper into the field was witnessing how 
+rapidly AI is advancing across every industry and 
+genuinely improving people's lives. She finds it 
+fascinating how AI can solve real world problems, 
+automate complex tasks, and reduce human effort in 
+meaningful ways. Seeing how ChatGPT works, how image 
+classification and object detection function, and 
+how AI is being used in the medical field to assist 
+in complex surgeries — all of this felt incredibly 
+exciting to her. The idea that software can learn, 
+reason, and act autonomously is what keeps her 
+motivated to build in this space.
+
+# SECTION: Goals and What Anshu is Looking For
+
+Anshu is actively looking for entry level roles that 
+combine backend engineering with AI — specifically 
+positions where she can build and deploy AI powered 
+systems, work on LLM pipelines, agentic workflows, 
+or RAG based applications. She is comfortable 
+working with the backend and enjoys 
+the challenge of integrating AI into production 
+systems. She is open to both startups and larger 
+companies, and is particularly interested in teams 
+that are building practical AI products that solve 
+real problems. She is based in Pune, India and is 
+open to both remote and on-site opportunities.
+
+# SECTION: Project Challenges - ResumeIQ
+
+The biggest challenge Anshu faced while building 
+ResumeIQ was managing token usage wisely across 
+the entire pipeline given the constraints of free 
+tier LLM APIs. With a resume, job description, and 
+multiple tool results all being fed into prompts 
+simultaneously, token usage spiked quickly and 
+responses were getting cut off or degraded in 
+quality. She solved this by splitting the work 
+across two models — using the smaller 8b model 
+for the extraction node where structured output 
+matters more than reasoning depth, and reserving 
+the 70b model only for the agent and analysis 
+nodes where quality is critical. This effectively 
+doubled the token budget while maintaining output 
+quality. For chat memory she implemented a custom 
+history compression function that keeps the first 
+2 messages and the last 10 messages, discarding 
+the middle of long conversations to keep the 
+context window lean. She also sends only extracted 
+JSON fields to chat turns instead of the full 
+resume text, significantly reducing per-turn token 
+consumption. Anshu considers this the most 
+valuable engineering lesson from the project — 
+that working within constraints forces you to make 
+smarter architectural decisions.
+
+# SECTION: Project Challenges - Personal Assistant
+
+Building the personal assistant came with several 
+interesting challenges. The first was deciding how 
+to write and structure the personal data so it 
+could be chunked properly for accurate retrieval. 
+Anshu learned that natural conversational language 
+retrieves far better than bullet point lists — so 
+instead of writing her information like a resume, 
+she wrote it as answers to questions a recruiter 
+might ask. The second challenge was a RAG retrieval 
+domination problem — when querying for all projects, 
+ChromaDB was only returning ResumeIQ chunks because 
+ResumeIQ had 5 chunks versus one chunk for other 
+projects, crowding out smaller topics in semantic 
+search. She fixed this by running two separate 
+targeted queries per topic and combining the results, 
+learning that data distribution in a vector database 
+directly affects retrieval quality.  
+These challenges taught Anshu that in AI systems, 
+data quality and system design matter as much as 
+model choice.
 
 # SECTION: Contact and Availability
 

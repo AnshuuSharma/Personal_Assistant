@@ -74,7 +74,7 @@ async def button(request: ButtonRequest):
         "skills":         "What are all of Anshu's technical skills?",
         "education":      "Tell me about Anshu's educational background",
         "experience":     "Tell me about Anshu's work experience",
-        "projects":       "Tell me about all of Anshu's projects in detail including ResumeIQ and Smart Banking",
+        "projects":       "Tell me about all of Anshu's projects in detail including ResumeIQ and personal assistant",
         "certifications": "What certifications does Anshu have?",
         "contact":        "How can I contact Anshu or reach out to her?"
     }
@@ -113,6 +113,12 @@ async def analyze(request: ResumeIQRequest):
     session_id = request.session_id
     job_description = request.job_description
 
+    result = call_resumeiq(job_description)
+    
+    print(f"ResumeIQ result keys: {result.keys()}")  
+    print(f"Error in result: {'error' in result}")     
+    print(f"Analysis length: {len(result.get('analysis', ''))}")
+
     if len(job_description.split()) < 30:
         return {
             "response": """That job description seems too short 
@@ -132,13 +138,21 @@ async def analyze(request: ResumeIQRequest):
         }
 
     context = f"""
-    ResumeIQ Analysis for the provided Job Description:
-
+    ResumeIQ has analyzed Anshu's resume against the provided job description.
+    Here is the full analysis:
     {result['analysis']}
     """
 
     response = llm_response(
-        user_query="Summarize how Anshu fits this role based on the ResumeIQ analysis.",
+        user_query="""Based on the ResumeIQ analysis provided, give an honest assessment of how Anshu fits this role.
+        Cover these points:
+        - ATS match score and whether she passed
+        - Skills she has that match the role
+        - Skills that are missing or gaps identified  
+        - Overall honest fit assessment
+
+        If the fit is weak, say so honestly but constructively.
+        A recruiter needs accurate information to make good decisions.""",
         context=context,
         chat_history=[]
     )

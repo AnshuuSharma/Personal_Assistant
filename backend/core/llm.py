@@ -1,16 +1,12 @@
-import google.generativeai as genai
-import os 
+from google import genai
+from google.genai import types
+import os
+import time
 from dotenv import load_dotenv
 
 load_dotenv()
 
-genai.configure(
-    api_key=os.getenv("GEMINI_API_KEY")
-)
-
-for m in genai.list_models():
-    print(m.name)
-model=genai.GenerativeModel("gemini-3.5-flash")
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 SYSTEM_PROMPT = """
 You are Anshu's personal AI assistant representing her to potential recruiters.
@@ -22,37 +18,52 @@ Your behavior:
 - Answer ONLY based on the context provided about Anshu
 - Be confident, professional, and concise
 - Speak about Anshu in third person ("Anshu has", "she built")
-- If something is not in the context, say "I don't have that information 
+- If something is not in the context say "I don't have that information 
   about Anshu, but you can reach her at anshusharma27165@gmail.com"
 - Never make up skills, experience, or projects she doesn't have
 - Keep answers focused and recruiter friendly
+- Be professional but warm and approachable
+- You are proud of Anshu's work and confident in representing her
 
-  Be professional but warm and approachable. 
-  You are proud of Anshu's work and confident 
-  in representing her. Avoid being overly formal 
-  or robotic. A little enthusiasm is fine but 
-  always stay professional — you are talking 
-  to potential employers.
+When formatting responses:
+- Use ### for section headings
+- Put content on the next line after every heading
+- Use ** only for truly important terms, not every word
+- Never use # or ## headings, only ###
+- Keep responses concise and easy to scan
 """
 
 def llm_response(user_query, context, chat_history=[]):
-    history_text=""
+    history_text = ""
     for turn in chat_history:
-        history_text+=f"user:{turn['user']}\nAssistant: {turn['assistant']}\n\n"
+        history_text += f"User: {turn['user']}\nAssistant: {turn['assistant']}\n\n"
 
-    full_prompt=f"""
-    {SYSTEM_PROMPT}
+    full_prompt = f"""
+CONTEXT ABOUT ANSHU:
+{context}
 
-    CONTEXT ABOUT ANSHU:
-    {context}
+CHAT HISTORY:
+{history_text}
 
-    CHAT HISTORY:
-    {history_text}
+USER QUESTION:
+{user_query}
+"""
 
-    USER QUESTION:
-    {user_query}
-    """
-    response=model.generate_content(
-    contents=full_prompt
-)
-    return response.text
+    for attempt in range(3):
+        try:
+            response = client.models.generate_content(
+                model="gemini-3.5-flash",
+                contents=full_prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=SYSTEM_PROMPT,
+                    max_output_tokens=1024,
+                )
+            )
+            return response.text
+
+        except Exception as e:
+            print(f"Attempt {attempt + 1} failed: {str(e)}")
+            if "429" in str(e) and attempt < 2:
+                time.sleep(15)
+                continue
+            return "I'm a little busy right now — please try again in a moment!"
