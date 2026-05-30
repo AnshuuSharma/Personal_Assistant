@@ -8,9 +8,10 @@ from dotenv import load_dotenv
 from backend.core.embeddings import create_embeddings
 from backend.core.retriever import retrieve, format_context
 from backend.core.llm import llm_response
-from backend.core.memory import get_recent_history, add_to_history
+from backend.core.memory import get_memory, add_to_history
 from backend.agent.router import route
 from backend.tools.resumeiq_tool import call_resumeiq
+
 
 load_dotenv()
 
