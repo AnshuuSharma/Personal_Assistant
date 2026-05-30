@@ -53,12 +53,9 @@ async def chat(request: ChatRequest):
     user_query = request.message
     session_id = request.session_id
 
-    chat_history = get_recent_history(session_id)
-
+    memory = get_memory(session_id, user_query)
     context = route(user_query)
-
-    response = llm_response(user_query, context, chat_history)
-
+    response = llm_response(user_query, context, memory)
     add_to_history(session_id, user_query, response)
 
     return {"response": response}
