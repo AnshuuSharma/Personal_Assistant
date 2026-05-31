@@ -68,7 +68,7 @@ RECRUITER'S QUESTION:
                 contents=full_prompt,
                 config=types.GenerateContentConfig(
                     system_instruction=SYSTEM_PROMPT,
-                    max_output_tokens=1024,
+                    # max_output_tokens=1024,
                 )
             )
             return response.text

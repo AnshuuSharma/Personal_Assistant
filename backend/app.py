@@ -97,7 +97,7 @@ async def button(request: ButtonRequest):
     
     context = format_context(chunks)
 
-    response = llm_response(query, context, chat_history=[])
+    response = llm_response(query, context, memory={})
 
     add_to_history(session_id, query, response)
 
@@ -152,7 +152,7 @@ async def analyze(request: ResumeIQRequest):
         If the fit is weak, say so honestly but constructively.
         A recruiter needs accurate information to make good decisions.""",
         context=context,
-        chat_history=[]
+        memory={}
     )
 
     add_to_history(session_id, "JD Analysis Request", response)

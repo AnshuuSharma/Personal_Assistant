@@ -1,0 +1,62 @@
+[
+    {
+        "question": "What is Anshu's CGPA?",
+        "ground_truth": "Anshu has a CGPA of 7.99"
+    },
+    {
+        "question": "What framework did Anshu use to build ResumeIQ?",
+        "ground_truth": "Anshu used LangGraph to build ResumeIQ"
+    },
+    {
+        "question": "Where is Anshu currently based?",
+        "ground_truth": "Anshu is currently based in Pune, India"
+    },
+    {
+        "question": "What are Anshu's AI skills?",
+        "ground_truth": "Anshu has experience in LangGraph, Groq API, Prompt Engineering, Tool Orchestration and RAG pipelines"
+    },
+    {
+        "question": "What is the ATS keyword checker in ResumeIQ?",
+        "ground_truth": "The ATS keyword checker is a custom Python function that computes keyword match percentage between resume and job description using set intersection"
+    },
+    {
+        "question": "How many LLM calls does ResumeIQ make per analysis?",
+        "ground_truth": "ResumeIQ makes 3 LLM calls per full analysis"
+    },
+    {
+        "question": "What certifications does Anshu have?",
+        "ground_truth": "Anshu holds the Microsoft Certified Azure Fundamentals certification"
+    },
+    {
+        "question": "What is Anshu's educational background?",
+        "ground_truth": "Anshu completed BTech in Computer Science from Truba Institute with CGPA 7.99"
+    },
+    {
+        "question": "What databases has Anshu worked with?",
+        "ground_truth": "Anshu has worked with MySQL for relational data and ChromaDB for vector storage"
+    },
+    {
+        "question": "What is the personal assistant built with?",
+        "ground_truth": "The personal assistant is built using FastAPI, ChromaDB, sentence transformers and Gemini Flash"
+    },
+    {
+        "question": "Why did Anshu get into AI?",
+        "ground_truth": "Anshu was fascinated by how AI is advancing across industries and solving real world problems"
+    },
+    {
+        "question": "What kind of roles is Anshu looking for?",
+        "ground_truth": "Anshu is looking for backend and AI engineering roles"
+    },
+    {
+        "question": "What was the hardest challenge in building ResumeIQ?",
+        "ground_truth": "Managing token usage wisely across the pipeline given free tier LLM constraints"
+    },
+    {
+        "question": "What tools does ResumeIQ orchestrate?",
+        "ground_truth": "ResumeIQ orchestrates ATS keyword checker, Adzuna job market API and YouTube Data API"
+    },
+    {
+        "question": "What internship did Anshu complete?",
+        "ground_truth": "Anshu completed a Web Development internship at Scoutbizz International"
+    }
+]

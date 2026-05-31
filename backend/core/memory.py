@@ -2,7 +2,7 @@ import os
 import numpy as np
 from groq import Groq
 from dotenv import load_dotenv
-from core.embeddings import create_embeddings
+from backend.core.embeddings import create_embeddings
 
 load_dotenv()
 
@@ -86,7 +86,6 @@ def _semantic_search_history(history_store, query, top_k=2):
     scores = []
     for item in history_store:
         h = np.array(item["embedding"])
-        # cosine similarity
         score = np.dot(q, h) / (np.linalg.norm(q) * np.linalg.norm(h) + 1e-9)
         scores.append((score, item["turn"]))
 
@@ -96,7 +95,7 @@ def _semantic_search_history(history_store, query, top_k=2):
 
 def _summarize(all_turns, existing_summary):
     convo = ""
-    for turn in all_turns[-6:]:  # summarize last 6 turns only
+    for turn in all_turns[-6:]:  
         convo += f"Recruiter: {turn['user']}\nAssistant: {turn['assistant']}\n\n"
 
     prompt = f"""

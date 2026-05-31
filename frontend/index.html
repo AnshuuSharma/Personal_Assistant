@@ -623,6 +623,9 @@ function goHome() {
   jdOpen = false;
   busy = false;
   setBusy(false);
+
+  sessionStorage.removeItem('conversation');
+    sessionStorage.removeItem('inChat'); 
 }
 
 // ── MESSAGES ─────────────────────────────────────
@@ -639,6 +642,7 @@ function addMsg(who, text) {
   `;
   m.appendChild(d);
   scrollBottom();
+  saveConversation();
 }
 
 function showTyping() {
@@ -793,6 +797,30 @@ async function submitJD() {
     setBusy(false);  
   }
 }
+// save messages to sessionStorage after every message
+function saveConversation() {
+    const messages = document.getElementById('messages').innerHTML;
+    sessionStorage.setItem('conversation', messages);
+    sessionStorage.setItem('inChat', 'true');
+}
+
+// restore conversation on page load
+function restoreConversation() {
+    const saved = sessionStorage.getItem('conversation');
+    const inChat = sessionStorage.getItem('inChat');
+    
+    if (saved && inChat === 'true') {
+        // restore chat view
+        document.getElementById('home-view').style.display = 'none';
+        document.getElementById('chat-view').style.display = 'flex';
+        // restore messages
+        document.getElementById('messages').innerHTML = saved;
+        scrollBottom();
+    }
+}
+
+
+window.addEventListener('load', restoreConversation);
 </script>
 </body>
 </html>
