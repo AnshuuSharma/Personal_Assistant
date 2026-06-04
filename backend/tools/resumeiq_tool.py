@@ -1,4 +1,3 @@
-# tools/resumeiq_tool.py
 import httpx
 import os
 from dotenv import load_dotenv
@@ -6,10 +5,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 RESUME_PATH = os.path.join(BASE_DIR, "..", "data", "raw", "Resume_Anshu.pdf")
-RESUMEIQ_URL = os.getenv("RESUMEIQ_URL")  # https://your-resumeiq-backend.onrender.com
+RESUMEIQ_URL = os.getenv("RESUMEIQ_URL")  
 
 print(f"RESUMEIQ_URL: {RESUMEIQ_URL}")
 print(f"RESUME_PATH: {RESUME_PATH}")

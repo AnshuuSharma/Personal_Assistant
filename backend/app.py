@@ -125,10 +125,10 @@ async def analyze(request: ResumeIQRequest):
     session_id = request.session_id
     job_description = request.job_description
 
-    result = call_resumeiq(job_description)
+    # result = call_resumeiq(job_description)
     
     print(f"ResumeIQ result keys: {result.keys()}")  
-    print(f"Error in result: {'error' in result}")     
+    print("full error:",result)     
     print(f"Analysis length: {len(result.get('analysis', ''))}")
 
     if len(job_description.split()) < 30:
