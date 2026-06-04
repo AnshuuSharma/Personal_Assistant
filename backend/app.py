@@ -125,7 +125,7 @@ async def analyze(request: ResumeIQRequest):
     session_id = request.session_id
     job_description = request.job_description
 
-    # result = call_resumeiq(job_description)
+    result = call_resumeiq(job_description)
     
     print(f"ResumeIQ result keys: {result.keys()}")  
     print("full error:",result)     
@@ -139,7 +139,7 @@ async def analyze(request: ResumeIQRequest):
     you provide, the more accurate the analysis will be!"""
         }
 
-    result = call_resumeiq(job_description)
+    # result = call_resumeiq(job_description)
 
     if "error" in result:
         return {
