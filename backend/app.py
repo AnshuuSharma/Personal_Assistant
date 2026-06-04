@@ -12,6 +12,11 @@ from core.memory import get_memory, add_to_history
 from agent.router import route
 from tools.resumeiq_tool import call_resumeiq
 
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+
+
 
 load_dotenv()
 
@@ -39,6 +44,15 @@ class ResumeIQRequest(BaseModel):
     job_description: str
     session_id: str
 
+
+
+
+# ─── serving frontend static files  ───────────────
+app.mount("/static", StaticFiles(directory="../frontend"), name="static")
+
+@app.get("/app")
+async def serve_frontend():
+    return FileResponse("../frontend/index.html")
 
 # ─── HEALTH CHECK ────────────────────────────────────────────
 
