@@ -5,12 +5,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
-from backend.core.embeddings import create_embeddings
-from backend.core.retriever import retrieve, format_context
-from backend.core.llm import llm_response
-from backend.core.memory import get_memory, add_to_history
-from backend.agent.router import route
-from backend.tools.resumeiq_tool import call_resumeiq
+from core.embeddings import create_embeddings
+from core.retriever import retrieve, format_context
+from core.llm import llm_response
+from core.memory import get_memory, add_to_history
+from agent.router import route
+from tools.resumeiq_tool import call_resumeiq
 
 
 load_dotenv()
@@ -158,3 +158,8 @@ async def analyze(request: ResumeIQRequest):
     add_to_history(session_id, "JD Analysis Request", response)
 
     return {"response": response}
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)

@@ -1,4 +1,4 @@
-with open("data\\raw\\info.txt", "r") as f:
+with open("data/raw/info.txt", "r") as f:
     text = f.read()
 
 chunks = [chunk.strip() for chunk in text.split("# SECTION:") if chunk.strip()]

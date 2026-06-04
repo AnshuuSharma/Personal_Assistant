@@ -17,36 +17,44 @@ Institute of Engineering and Information Technology, Bhopal, graduating in
 Vidisha, Madhya Pradesh under the CBSE board in 2021, scoring 81 percent.
 And class X from Vidisha under the CBSE board in 2019 scoring 88 percent 
 
+Here are the rewritten chunks with keywords in the first sentence:
 # SECTION: Skills - Programming and Core CS
 
-Anshu is proficient in Python, which is her primary language for building 
-AI and backend systems. She also has knowledge of C++ and is familier with 
-Scikit-learn for machine learning tasks. Her core CS concepts include 
-Object-Oriented Programming, Exception Handling,data structures & algorithms and 
-understanding of Machine Learning algorithms including classification, regression, and clustering.
+Anshu's programming skills include Python, C++, and Scikit-learn.
+Python is her primary language for building AI and backend systems.
+She has knowledge of C++ and uses Scikit-learn for machine learning
+tasks. Her core CS concepts include Object-Oriented Programming,
+Exception Handling, Data Structures and Algorithms, and a solid
+understanding of Machine Learning algorithms including classification,
+regression, and clustering.
 
-# SECTION: Skills - AI and LLM
 
-Anshu has hands-on experience in Agentic AI and LLM-based systems. She has 
-worked with LangGraph to build stateful multi-node agent pipelines, used the 
-Groq API for fast LLM inference, and has practical experience with Prompt 
-Engineering and Tool Orchestration. She is familiar with RAG (Retrieval 
-Augmented Generation) pipelines and is actively deepening her knowledge in 
-this area through her personal assistant project.
+# SECTION: Skills - AI
+
+Anshu's AI and LLM skills include LangGraph, Groq API, Prompt Engineering,
+Tool Orchestration, and RAG (Retrieval Augmented Generation). She has 
+hands-on experience building Agentic AI systems and LLM-based pipelines. 
+She has worked with LangGraph to build stateful multi-node agent pipelines, 
+used the Groq API for fast LLM inference, and has practical experience with 
+Prompt Engineering and Tool Orchestration. She is familiar with RAG pipelines 
+and is actively deepening her knowledge in this area through her personal 
+assistant project.
 
 # SECTION: Skills - Web and Backend
 
-Anshu has built and deployed backend systems using Flask and understands 
-REST API design. She is familiar with Docker for containerization and uses 
-Git for version control. She has experience deploying applications on Render 
-and Netlify.
+Anshu's web and backend skills include Flask, REST APIs, Docker,
+Git, Render, and Netlify. She has built and deployed backend systems
+using Flask and understands REST API design. She is familiar with
+Docker for containerization, uses Git for version control, and has
+experience deploying full stack applications on Render and Netlify.
 
 # SECTION: Skills - Data and Databases
 
-Anshu uses Pandas and NumPy for data manipulation and Matplotlib for 
-visualization. She has worked with MySQL for relational data management in 
-production-level backend systems.
-
+Anshu's data and database skills include Pandas, NumPy, Matplotlib,
+MySQL, and ChromaDB. She uses Pandas and NumPy for data manipulation
+and Matplotlib for data visualization. She has worked with MySQL for
+relational data management in production-level backend systems and
+ChromaDB as a vector database for RAG pipelines.
 
 # SECTION: Projects Overview
 
@@ -205,7 +213,7 @@ formats this analysis into a clean response. This makes the assistant not
 just a static Q&A system but a live demonstration of Anshu's agentic AI 
 work, where two of her projects work together as an integrated system.
 
-# SECTION: Project - Personal Assistant (Tech Stack and Decisions)
+# SECTION: Tech Stack - Personal Assistant
 
 The personal assistant is built using FastAPI for the async backend, 
 ChromaDB for local vector storage, sentence-transformers for embeddings, 
@@ -234,66 +242,58 @@ Anshu holds the Microsoft Certified Azure Fundamentals certification,
 demonstrating foundational knowledge of cloud concepts and Microsoft Azure 
 services.
 
-# SECTION: Why AI - Anshu's Motivation
+# SECTION: Motivation - Why Anshu Chose AI
 
-Anshu's journey into AI started with Data Science, 
-which sparked her curiosity about Machine Learning, 
-and eventually led her to Agentic AI systems. What 
-drew her deeper into the field was witnessing how 
-rapidly AI is advancing across every industry and 
-genuinely improving people's lives. She finds it 
-fascinating how AI can solve real world problems, 
-automate complex tasks, and reduce human effort in 
-meaningful ways. Seeing how ChatGPT works, how image 
-classification and object detection function, and 
-how AI is being used in the medical field to assist 
-in complex surgeries — all of this felt incredibly 
-exciting to her. The idea that software can learn, 
-reason, and act autonomously is what keeps her 
-motivated to build in this space.
+Anshu chose AI because she finds it genuinely fascinating 
+how artificial intelligence is transforming every industry 
+and making people's lives easier in meaningful ways. Her 
+journey started with Data Science, then deepened into 
+Machine Learning, and eventually led her to Agentic AI 
+systems. What excites her most is how AI can solve real 
+world problems, automate complex tasks, and reduce human 
+effort. Seeing how ChatGPT works, how image classification 
+and object detection function, and how AI assists in 
+complex medical surgeries — all of this motivated her to 
+build in this space. She is driven by the belief that AI 
+can be used to create tools that genuinely help people.
 
-# SECTION: Goals and What Anshu is Looking For
+# SECTION: Goals - Roles Anshu is Looking For
 
 Anshu is actively looking for entry level roles that 
-combine backend engineering with AI — specifically 
-positions where she can build and deploy AI powered 
-systems, work on LLM pipelines, agentic workflows, 
-or RAG based applications. She is comfortable 
-working with the backend and enjoys 
-the challenge of integrating AI into production 
-systems. She is open to both startups and larger 
-companies, and is particularly interested in teams 
-that are building practical AI products that solve 
-real problems. She is based in Pune, India and is 
-open to both remote and on-site opportunities.
+combine backend engineering with AI. She is specifically 
+interested in positions where she can build and deploy 
+AI powered systems, work on LLM pipelines, agentic 
+workflows, or RAG based applications. She is comfortable 
+working across the full backend stack and enjoys 
+integrating AI into production systems. She is open to 
+both startups and larger companies and is particularly 
+interested in teams building practical AI products. She 
+is based in Pune, India and open to both remote and 
+on-site opportunities.
 
-# SECTION: Project Challenges - ResumeIQ
+# SECTION: Project Challenges - Building ResumeIQ
 
-The biggest challenge Anshu faced while building 
-ResumeIQ was managing token usage wisely across 
-the entire pipeline given the constraints of free 
-tier LLM APIs. With a resume, job description, and 
-multiple tool results all being fed into prompts 
-simultaneously, token usage spiked quickly and 
-responses were getting cut off or degraded in 
-quality. She solved this by splitting the work 
-across two models — using the smaller 8b model 
-for the extraction node where structured output 
-matters more than reasoning depth, and reserving 
-the 70b model only for the agent and analysis 
-nodes where quality is critical. This effectively 
-doubled the token budget while maintaining output 
-quality. For chat memory she implemented a custom 
-history compression function that keeps the first 
-2 messages and the last 10 messages, discarding 
-the middle of long conversations to keep the 
-context window lean. She also sends only extracted 
-JSON fields to chat turns instead of the full 
-resume text, significantly reducing per-turn token 
-consumption. Anshu considers this the most 
-valuable engineering lesson from the project — 
-that working within constraints forces you to make 
-smarter architectural decisions.
+The biggest challenge Anshu faced building ResumeIQ was 
+managing token limits and token usage across the pipeline 
+given free tier LLM API constraints. With a resume, job 
+description, and multiple tool results all being fed into 
+prompts simultaneously, token usage spiked quickly and 
+responses were getting cut off or degraded in quality. 
+She solved this by splitting work across two models — 
+using the smaller 8b model for the extraction node where 
+structured output matters more than reasoning depth, and 
+reserving the 70b model only for agent and analysis nodes 
+where quality is critical. This dual model architecture 
+effectively doubled the token budget while maintaining 
+output quality. For chat memory she implemented a custom 
+history compression function keeping the first 2 messages 
+and last 10 messages, discarding the middle of long 
+conversations to keep the context window lean. She also 
+sends only extracted JSON fields to chat turns instead of 
+the full resume text, significantly reducing per-turn 
+token consumption. Anshu considers this the most valuable 
+engineering lesson from ResumeIQ — that working within 
+constraints forces smarter architectural decisions.
 
 # SECTION: Project Challenges - Personal Assistant
 

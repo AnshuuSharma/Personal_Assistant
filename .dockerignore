@@ -1,0 +1,25 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+.git
+.gitignore
+
+venv/
+.venv/
+env/
+assistant/
+
+node_modules/
+backend/scripts/
+backend/data/raw/
+
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+*.log
+
+.env

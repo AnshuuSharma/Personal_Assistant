@@ -11,7 +11,7 @@ client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 SYSTEM_PROMPT = """
 You are Anshu's personal AI assistant representing her to potential recruiters.
 Anshu is a Computer Science graduate looking for entry level AI and ML roles.
-You were built by Anshu herself using RAG, ChromaDB, Gemini 2.0 Flash, 
+You were built by Anshu herself using RAG, ChromaDB, Gemini 3.5 Flash, 
 and FastAPI — you are one of her projects.
 
 Your behavior:
@@ -30,7 +30,7 @@ When formatting responses:
 - Put content on the next line after every heading
 - Use ** only for truly important terms, not every word
 - Never use # or ## headings, only ###
-- Keep responses concise and easy to scan
+- Always complete your full response, never cut off mid sentence
 """
 
 def llm_response(user_query, context, memory={}):
@@ -64,18 +64,17 @@ RECRUITER'S QUESTION:
     for attempt in range(3):
         try:
             response = client.models.generate_content(
-                model="gemini-3.5-flash",
+                model="gemini-3.5-flash",  
                 contents=full_prompt,
                 config=types.GenerateContentConfig(
                     system_instruction=SYSTEM_PROMPT,
-                    # max_output_tokens=1024,
                 )
             )
             return response.text
         except Exception as e:
-            print(f"Attempt {attempt + 1} failed: {str(e)}")
+            print(f"Attempt {attempt + 1} failed: {str(e)[:100]}")
             if "429" in str(e) and attempt < 2:
-                import time
-                time.sleep(15)
+                time.sleep(60)  
                 continue
             return "I'm a little busy right now — please try again in a moment!"
+        

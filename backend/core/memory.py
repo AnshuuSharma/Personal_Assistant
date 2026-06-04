@@ -2,7 +2,7 @@ import os
 import numpy as np
 from groq import Groq
 from dotenv import load_dotenv
-from backend.core.embeddings import create_embeddings
+from core.embeddings import create_embeddings
 
 load_dotenv()
 

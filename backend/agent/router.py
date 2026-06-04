@@ -1,5 +1,5 @@
-from backend.core.embeddings import create_embeddings
-from backend.core.retriever import retrieve, format_context
+from core.embeddings import create_embeddings
+from core.retriever import retrieve, format_context
 
 
 def route(user_query):
