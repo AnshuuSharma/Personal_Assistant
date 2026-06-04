@@ -50,13 +50,13 @@ class ResumeIQRequest(BaseModel):
 # ─── serving frontend static files  ───────────────
 app.mount("/static", StaticFiles(directory="../frontend"), name="static")
 
-@app.get("/app")
+@app.get("/")
 async def serve_frontend():
     return FileResponse("../frontend/index.html")
 
 # ─── HEALTH CHECK ────────────────────────────────────────────
 
-@app.get("/")
+@app.get("/health")
 async def root():
     return {"status": "Anshu's personal assistant is running!"}
 
