@@ -13,7 +13,7 @@ assistant/
 
 node_modules/
 backend/scripts/
-backend/data/raw/
+backend/data/raw/info.txt
 
 .idea/
 .vscode/
