@@ -338,23 +338,38 @@ Answer:"""
 
 # ── METRIC 1: RETRIEVAL PRECISION ────────────────────────────
 def evaluate_retrieval(test_cases):
+    print("\n[1/4] Retrieval Precision (no LLM calls)...")
+    correct = 0
+    results = []
+
     for test in test_cases:
         embedding = create_embeddings(test["question"])
-        chunks = retrieve(embedding, n_results=5)
+        chunks = retrieve(embedding, n_results=5, query_text=test["question"])
 
         expected = test["expected_chunk"]
-        
-        # handle both string and list expected chunks
+
         if expected is None:
-            hit = True  # unanswerable questions always pass retrieval
+            hit = True
         elif isinstance(expected, list):
-            # at least one expected chunk must be retrieved
             hit = any(
                 any(exp.lower() in chunk.lower() for chunk in chunks)
                 for exp in expected
             )
         else:
             hit = any(expected.lower() in chunk.lower() for chunk in chunks)
+
+        correct += int(hit)
+        status = "✅" if hit else "❌"
+        print(f"  {status} [{expected}] {test['question'][:45]}")
+
+        results.append({
+            "question": test["question"],
+            "hit": hit
+        })
+
+    score = correct / len(test_cases)
+    print(f"  → Retrieval Precision@5: {score:.2%}")
+    return score, results  
 
 # ── METRIC 2: ANSWER ACCURACY (LLM-as-Judge) ─────────────────
 def evaluate_answer_accuracy(test_cases, outputs):

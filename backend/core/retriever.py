@@ -15,15 +15,15 @@ _all_docs = None
 _bm25 = None
 
 def _load_bm25():
-    global _all_docs, _bm25
+    global _all_docs, _bm25, _all_ids
     if _bm25 is not None:
-        return  
+        return
 
     print("Loading BM25 index...")
     result = collection.get()
     _all_docs = result["documents"]
+    _all_ids = result["ids"]  # use ChromaDB IDs ← ADD THIS
 
-    
     tokenized = [doc.lower().split() for doc in _all_docs]
     _bm25 = BM25Okapi(tokenized)
     print(f"BM25 index built with {len(_all_docs)} chunks")
@@ -48,7 +48,7 @@ def sparse_retrieve(query, n_results=10):
     
     top_indices = np.argsort(scores)[::-1][:n_results]
     docs = [_all_docs[i] for i in top_indices]
-    ids = [str(i) for i in top_indices]
+    ids = [_all_ids[i] for i in top_indices]
     return docs, ids
 
 
