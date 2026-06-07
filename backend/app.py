@@ -99,7 +99,7 @@ async def button(request: ButtonRequest):
     query_embedding = create_embeddings(query)
 
     n = 6 if request.topic == "projects" else 4
-    chunks = retrieve(query_embedding, n_results=n)
+    chunks = retrieve(query_embedding, n_results=n, query_text=query)
 
     print(f"\n--- DEBUG ---")
     print(f"Topic: {request.topic}")
@@ -139,7 +139,6 @@ async def analyze(request: ResumeIQRequest):
     you provide, the more accurate the analysis will be!"""
         }
 
-    # result = call_resumeiq(job_description)
 
     if "error" in result:
         return {
