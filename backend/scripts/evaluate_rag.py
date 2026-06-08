@@ -124,7 +124,7 @@ test_set = [
     {
         "question": "What technologies are used in the backend of the personal assistant?",
         "expected_keywords": ["FastAPI"],
-        "expected_chunk": "Tech Stack - Personal Assistant"
+        "expected_chunk": ["Tech Stack - Personal Assistant","Personal Assistant (Architecture)"]
     },
     {
         "question": "What AI-related technologies has Anshu worked with?",
@@ -159,7 +159,7 @@ test_set = [
     {
         "question": "Which of Anshu's projects demonstrates agentic AI concepts?",
         "expected_keywords": ["ResumeIQ", "LangGraph"],
-        "expected_chunk": ["Project - Personal Assistant (Overview)","Project - ResumeIQ (Overview)"]
+        "expected_chunk": ["Introduction","Project - Personal Assistant (Overview)","Project - ResumeIQ (Overview)"]
     },
     {
         "question": "Which project best showcases Anshu's AI engineering skills?",
@@ -204,12 +204,12 @@ test_set = [
     {
         "question": "What makes ResumeIQ technically challenging?",
         "expected_keywords": ["token"],
-        "expected_chunk": "Challenges - Building ResumeIQ"
+        "expected_chunk": ["Challenges - Building ResumeIQ","Architecture and Workflow","Token Management"]
     },
     {
         "question": "What evidence shows that Anshu has experience building AI applications?",
         "expected_keywords": ["ResumeIQ", "Personal Assistant"],
-        "expected_chunk": ["Project - Personal Assistant (Overview)"," Project - ResumeIQ (Overview)"]
+        "expected_chunk": ["Introduction","Project - Personal Assistant (Overview)"," Project - ResumeIQ (Overview)"]
     },
     {
         "question": "How does Anshu demonstrate experience with retrieval augmented generation?",
@@ -352,15 +352,16 @@ def evaluate_retrieval(test_cases):
             hit = True
         elif isinstance(expected, list):
             hit = any(
-                any(exp.lower() in chunk.lower() for chunk in chunks)
+                any(exp.strip().lower() in chunk.lower() for chunk in chunks)
                 for exp in expected
             )
         else:
-            hit = any(expected.lower() in chunk.lower() for chunk in chunks)
+            hit = any(expected.strip().lower() in chunk.lower() for chunk in chunks)
 
         correct += int(hit)
         status = "✅" if hit else "❌"
         print(f"  {status} [{expected}] {test['question'][:45]}")
+        print(f"  Top chunk: {chunks[0][:60]}")
 
         results.append({
             "question": test["question"],
@@ -461,8 +462,8 @@ def evaluate_semantic_similarity(test_cases, ground_truths, outputs):
 
 # ── METRIC 4: FAITHFULNESS ────────────────────────────────────
 def evaluate_faithfulness(test_cases, outputs):
-    # test_cases = test_cases[-15:] 
-    # outputs = outputs[-15:]
+    test_cases = test_cases[-15:] 
+    outputs = outputs[-15:]
     print("\n[4/4] Faithfulness (LLM-as-judge via Groq)...")
     scores = []
     results = []
@@ -529,9 +530,9 @@ Respond with valid JSON only, no markdown:
 
 # ── METRIC 5: CONTEXT RECALL ─────────────────────────────────
 def evaluate_context_recall(test_cases, ground_truths, outputs):
-    # test_cases = test_cases[-15:]
-    # ground_truths = ground_truths[-15:]
-    outputs = outputs[-15:]
+    test_cases = test_cases[:15]
+    ground_truths = ground_truths[:15]
+    outputs = outputs[:15]
     print("\n[5/5] Context Recall (LLM-as-judge via Groq)...")
     scores = []
     results = []

@@ -244,6 +244,8 @@ services.
 
 # SECTION: Motivation - Why Anshu Chose AI
 
+This section describes Anshu's personal journey and motivation 
+for choosing AI as a career path.
 Anshu chose AI because she finds it genuinely fascinating 
 how artificial intelligence is transforming every industry 
 and making people's lives easier in meaningful ways. Her 
@@ -273,7 +275,8 @@ on-site opportunities.
 
 # SECTION: Project Challenges - Building ResumeIQ
 
-The biggest challenge Anshu faced building ResumeIQ was 
+The most technically challenging aspect of building ResumeIQ — 
+and the hardest technical challenge Anshu faced was 
 managing token limits and token usage across the pipeline 
 given free tier LLM API constraints. With a resume, job 
 description, and multiple tool results all being fed into 
