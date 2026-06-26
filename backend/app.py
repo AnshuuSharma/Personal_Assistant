@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 from core.embeddings import create_embeddings
 from core.retriever import retrieve, format_context
-from core.llm import llm_response
+from core.llm import llm_response, llm_response_stream
 from core.memory import get_memory, add_to_history
 from agent.router import route
 from tools.resumeiq_tool import call_resumeiq
@@ -15,6 +15,8 @@ from tools.resumeiq_tool import call_resumeiq
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
+from fastapi.responses import StreamingResponse
+import json
 
 
 
@@ -70,11 +72,31 @@ async def chat(request: ChatRequest):
 
     memory = get_memory(session_id, user_query)
     context = route(user_query)
-    response = llm_response(user_query, context, memory)
-    add_to_history(session_id, user_query, response)
+    # response = llm_response(user_query, context, memory)
+    # add_to_history(session_id, user_query, response)
 
-    return {"response": response}
+    # return {"response": response}
 
+    full_response=""
+    def generate():
+        nonlocal full_response
+        stream = llm_response_stream(user_query, context , memory)
+
+        if stream is None:
+            yield f"data : {json.dumps({'text':'I am a little busy right now — please try again!', 'done': True})}\n\n"
+            return
+        for chunk in stream:
+            if chunk.text:
+                full_response+=chunk.text
+                yield f"data : {json.dumps({'text': chunk.text, 'done': False})}\n\n"
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no"  
+        }
+    )
 
 # ─── BUTTON ENDPOINT ─────────────────────────────────────────
 
@@ -92,31 +114,40 @@ async def button(request: ButtonRequest):
     }
 
     query = button_queries.get(request.topic)
-
     if not query:
         return {"response": "Invalid button topic"}
 
     query_embedding = create_embeddings(query)
-
     n = 6 if request.topic == "projects" else 4
     chunks = retrieve(query_embedding, n_results=n, query_text=query)
-
-    print(f"\n--- DEBUG ---")
-    print(f"Topic: {request.topic}")
-    print(f"Query: {query}")
-    print(f"Chunks retrieved: {len(chunks)}")
-    for i, chunk in enumerate(chunks):
-        print(f"Chunk {i}: {chunk[:80]}...")
-    print(f"--- END DEBUG ---\n")
-    
     context = format_context(chunks)
 
-    response = llm_response(query, context, memory={})
+    full_response = ""
 
-    add_to_history(session_id, query, response)
+    def generate():
+        nonlocal full_response
+        stream = llm_response_stream(query, context, memory={})
 
-    return {"response": response}
+        if stream is None:
+            yield f"data: {json.dumps({'text': 'Something went wrong — please try again!', 'done': True})}\n\n"
+            return
 
+        for chunk in stream:
+            if chunk.text:
+                full_response += chunk.text
+                yield f"data: {json.dumps({'text': chunk.text, 'done': False})}\n\n"
+
+        add_to_history(session_id, query, full_response)
+        yield f"data: {json.dumps({'text': '', 'done': True})}\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no"
+        }
+    )
 
 # ─── RESUMEIQ ENDPOINT ───────────────────────────────────────
 
