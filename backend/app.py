@@ -80,21 +80,43 @@ async def chat(request: ChatRequest):
     full_response=""
     def generate():
         nonlocal full_response
-        stream = llm_response_stream(user_query, context , memory)
+        try:
+            provider, stream = llm_response_stream(user_query, context, memory)
+            print(f"DEBUG: provider={provider}, stream={stream}")  
 
-        if stream is None:
-            yield f"data : {json.dumps({'text':'I am a little busy right now — please try again!', 'done': True})}\n\n"
-            return
-        for chunk in stream:
-            if chunk.text:
-                full_response+=chunk.text
-                yield f"data : {json.dumps({'text': chunk.text, 'done': False})}\n\n"
+            if stream is None:
+               print("DEBUG: stream is None, sending fallback message")
+               yield f"data: {json.dumps({'text': 'I am a little busy right now — please try again!', 'done': True})}\n\n"
+               return
+
+            if provider == "gemini":
+                for chunk in stream:
+                 print(f"DEBUG: gemini chunk = {chunk}")
+                 if chunk.text:
+                    full_response += chunk.text
+                    yield f"data: {json.dumps({'text': chunk.text, 'done': False})}\n\n"
+            else:  # groq
+              for chunk in stream:
+                print(f"DEBUG: groq chunk = {chunk}")
+                delta = chunk.choices[0].delta.content
+                if delta:
+                    full_response += delta
+                    yield f"data: {json.dumps({'text': delta, 'done': False})}\n\n"
+
+            add_to_history(session_id, user_query, full_response)
+            print(f"DEBUG: full_response = {full_response[:100]}") 
+            yield f"data: {json.dumps({'text': '', 'done': True})}\n\n"
+
+        except Exception as e:
+           print(f"Streaming error: {str(e)[:200]}")
+           yield f"data: {json.dumps({'text': 'Something went wrong — please try again shortly!', 'done': True})}\n\n"
+
     return StreamingResponse(
         generate(),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
-            "X-Accel-Buffering": "no"  
+            "X-Accel-Buffering": "no"
         }
     )
 
@@ -126,19 +148,31 @@ async def button(request: ButtonRequest):
 
     def generate():
         nonlocal full_response
-        stream = llm_response_stream(query, context, memory={})
+        try:
+            provider, stream = llm_response_stream(query, context, memory={})  # unpack tuple correctly
 
-        if stream is None:
-            yield f"data: {json.dumps({'text': 'Something went wrong — please try again!', 'done': True})}\n\n"
-            return
+            if stream is None:
+                yield f"data: {json.dumps({'text': 'Something went wrong — please try again!', 'done': True})}\n\n"
+                return
 
-        for chunk in stream:
-            if chunk.text:
-                full_response += chunk.text
-                yield f"data: {json.dumps({'text': chunk.text, 'done': False})}\n\n"
+            if provider == "gemini":
+                for chunk in stream:
+                    if chunk.text:
+                        full_response += chunk.text
+                        yield f"data: {json.dumps({'text': chunk.text, 'done': False})}\n\n"
+            else:  # groq fallback
+                for chunk in stream:
+                    delta = chunk.choices[0].delta.content
+                    if delta:
+                        full_response += delta
+                        yield f"data: {json.dumps({'text': delta, 'done': False})}\n\n"
 
-        add_to_history(session_id, query, full_response)
-        yield f"data: {json.dumps({'text': '', 'done': True})}\n\n"
+            add_to_history(session_id, query, full_response)
+            yield f"data: {json.dumps({'text': '', 'done': True})}\n\n"
+
+        except Exception as e:
+            print(f"Button streaming error: {str(e)[:200]}")
+            yield f"data: {json.dumps({'text': 'Something went wrong — please try again shortly!', 'done': True})}\n\n"
 
     return StreamingResponse(
         generate(),

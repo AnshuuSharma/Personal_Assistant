@@ -22,7 +22,7 @@ def _load_bm25():
     print("Loading BM25 index...")
     result = collection.get()
     _all_docs = result["documents"]
-    _all_ids = result["ids"]  # use ChromaDB IDs ← ADD THIS
+    _all_ids = result["ids"]  
 
     tokenized = [doc.lower().split() for doc in _all_docs]
     _bm25 = BM25Okapi(tokenized)

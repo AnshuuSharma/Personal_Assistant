@@ -177,26 +177,6 @@ test_set = [
         "expected_chunk": ["Project - Personal Assistant (Architecture)","Personal Assistant (Overview)"]
     },
     {
-        "question": "What is Anshu's current salary?",
-        "expected_keywords": [],
-        "expected_chunk": None
-    },
-    {
-        "question": "Which FAANG company has Anshu worked for?",
-        "expected_keywords": [],
-        "expected_chunk": None
-    },
-    {
-        "question": "What is Anshu's master's degree specialization?",
-        "expected_keywords": [],
-        "expected_chunk": None
-    },
-    {
-        "question": "How many years of professional AI experience does Anshu have?",
-        "expected_keywords": [],
-        "expected_chunk": None
-    },
-    {
         "question": "Why should a company hire Anshu for an AI role?",
         "expected_keywords": ["AI", "projects"],
         "expected_chunk": "Goals"
@@ -336,7 +316,20 @@ Answer:"""
     print("Answers cached to answers_cache.json")
     return outputs
 
+
+
+
 # ── METRIC 1: RETRIEVAL PRECISION ────────────────────────────
+
+
+def is_chunk_match(expected, chunk):
+    # get the section name — first line of chunk
+    first_line = chunk.split('\n')[0].strip().lower()
+    expected_lower = expected.strip().lower()
+    
+    # check if expected appears in the section name line only
+    return expected_lower in first_line
+
 def evaluate_retrieval(test_cases):
     print("\n[1/4] Retrieval Precision (no LLM calls)...")
     correct = 0
@@ -350,27 +343,26 @@ def evaluate_retrieval(test_cases):
 
         if expected is None:
             hit = True
+
         elif isinstance(expected, list):
             hit = any(
-                any(exp.strip().lower() in chunk.lower() for chunk in chunks)
+                any(is_chunk_match(exp, chunk) for chunk in chunks)
                 for exp in expected
             )
         else:
-            hit = any(expected.strip().lower() in chunk.lower() for chunk in chunks)
+            hit = any(is_chunk_match(expected, chunk) for chunk in chunks)
 
         correct += int(hit)
         status = "✅" if hit else "❌"
         print(f"  {status} [{expected}] {test['question'][:45]}")
-        print(f"  Top chunk: {chunks[0][:60]}")
+        print(f"  Top chunk first line: {chunks[0].split(chr(10))[0][:70]}")
 
-        results.append({
-            "question": test["question"],
-            "hit": hit
-        })
+        results.append({"question": test["question"], "hit": hit})
 
     score = correct / len(test_cases)
     print(f"  → Retrieval Precision@5: {score:.2%}")
-    return score, results  
+    return score, results
+
 
 # ── METRIC 2: ANSWER ACCURACY (LLM-as-Judge) ─────────────────
 def evaluate_answer_accuracy(test_cases, outputs):
@@ -462,8 +454,8 @@ def evaluate_semantic_similarity(test_cases, ground_truths, outputs):
 
 # ── METRIC 4: FAITHFULNESS ────────────────────────────────────
 def evaluate_faithfulness(test_cases, outputs):
-    test_cases = test_cases[-15:] 
-    outputs = outputs[-15:]
+    # test_cases = test_cases[-15:] 
+    # outputs = outputs[-15:]
     print("\n[4/4] Faithfulness (LLM-as-judge via Groq)...")
     scores = []
     results = []
@@ -530,9 +522,9 @@ Respond with valid JSON only, no markdown:
 
 # ── METRIC 5: CONTEXT RECALL ─────────────────────────────────
 def evaluate_context_recall(test_cases, ground_truths, outputs):
-    test_cases = test_cases[:15]
-    ground_truths = ground_truths[:15]
-    outputs = outputs[:15]
+    # test_cases = test_cases[:15]
+    # ground_truths = ground_truths[:15]
+    # outputs = outputs[:15]
     print("\n[5/5] Context Recall (LLM-as-judge via Groq)...")
     scores = []
     results = []

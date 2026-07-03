@@ -70,7 +70,7 @@ RECRUITER'S QUESTION:
     for attempt in range(3):
         try:
             response = client.models.generate_content(
-                model="gemini-3.5-flash",  
+                model="gemini-2.5-flash",  
                 contents=full_prompt,
                 config=types.GenerateContentConfig(
                     system_instruction=SYSTEM_PROMPT,
@@ -84,6 +84,58 @@ RECRUITER'S QUESTION:
                 continue
             return "I'm a little busy right now — please try again in a moment!"
         
+# def llm_response_stream(user_query, context, memory={}):
+#     summary = memory.get("summary", "")
+#     relevant = memory.get("relevant", [])
+#     recent = memory.get("recent", [])
+
+#     relevant_text = ""
+#     if relevant:
+#         relevant_text = "RELEVANT PAST CONTEXT:\n"
+#         for turn in relevant:
+#             relevant_text += f"Recruiter: {turn['user']}\nAssistant: {turn['assistant']}\n\n"
+
+#     recent_text = ""
+#     if recent:
+#         recent_text = "RECENT TURNS:\n"
+#         for turn in recent:
+#             recent_text += f"Recruiter: {turn['user']}\nAssistant: {turn['assistant']}\n\n"
+
+#     full_prompt = f"""
+# CONTEXT ABOUT ANSHU:
+# {context}
+
+# {"CONVERSATION SUMMARY:" + chr(10) + summary + chr(10) if summary else ""}
+# {relevant_text}
+# {recent_text}
+# RECRUITER'S QUESTION:
+# {user_query}
+# """
+
+#     for attempt in range(3):
+#         try:
+#             # streaming call
+#             response = client.models.generate_content_stream(
+#                 model="gemini-2.0-flash",
+#                 contents=full_prompt,
+#                 config=types.GenerateContentConfig(
+#                     system_instruction=SYSTEM_PROMPT,
+#                 )
+#             )
+#             return response  # returns a generator
+#         except Exception as e:
+#             print(f"Attempt {attempt + 1} failed: {str(e)[:100]}")
+#             if "429" in str(e) and attempt < 2:
+#                 time.sleep(60)
+#                 continue
+#             return None
+
+
+# llm.py — add Groq as fallback
+from groq import Groq
+
+groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
 def llm_response_stream(user_query, context, memory={}):
     summary = memory.get("summary", "")
     relevant = memory.get("relevant", [])
@@ -112,20 +164,34 @@ RECRUITER'S QUESTION:
 {user_query}
 """
 
-    for attempt in range(3):
+    for attempt in range(2):
         try:
-            # streaming call
             response = client.models.generate_content_stream(
-                model="gemini-3.5-flash",
+                model="gemini-2.5-flash",
                 contents=full_prompt,
                 config=types.GenerateContentConfig(
                     system_instruction=SYSTEM_PROMPT,
                 )
             )
-            return response  # returns a generator
+            return ("gemini", response)
         except Exception as e:
-            print(f"Attempt {attempt + 1} failed: {str(e)[:100]}")
-            if "429" in str(e) and attempt < 2:
-                time.sleep(60)
+            print(f"Gemini attempt {attempt + 1} failed: {str(e)[:100]}")
+            if attempt < 1:
+                time.sleep(3)
                 continue
-            return None
+
+    # Gemini failed completely — fall back to Groq
+    print("Falling back to Groq...")
+    try:
+        groq_stream = groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": full_prompt}
+            ],
+            stream=True
+        )
+        return ("groq", groq_stream)
+    except Exception as e:
+        print(f"Groq fallback also failed: {str(e)[:100]}")
+        return (None, None)
