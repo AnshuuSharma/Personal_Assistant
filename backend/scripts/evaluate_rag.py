@@ -276,47 +276,43 @@ ground_truths = [
 def generate_answers(test_cases):
     answers_path = os.path.join(BASE_DIR, "answers_cache.json")
 
-    # load from cache if exists — skip generation entirely
     if os.path.exists(answers_path):
         print("\nLoading cached answers (delete answers_cache.json to regenerate)")
         with open(answers_path, "r") as f:
             return json.load(f)
 
+    # import your actual pipeline
+    from core.llm import llm_response
+
     outputs = []
-    print(f"\nGenerating {len(test_cases)} answers using Groq...")
+    print(f"\nGenerating {len(test_cases)} answers using actual Gemini pipeline...")
+
     for i, test in enumerate(test_cases):
         print(f"  {i+1}/{len(test_cases)}: {test['question'][:50]}")
+
         embedding = create_embeddings(test["question"])
-        chunks = retrieve(embedding, n_results=5)
+        chunks = retrieve(
+            embedding,
+            n_results=8,              
+            query_text=test["question"]  
+        )
         context = format_context(chunks)
 
-        prompt = f"""You are an AI assistant for Anshu, a CS graduate.
-Answer the question based ONLY on the context provided.
-Be concise and accurate.
+        answer = llm_response(test["question"], context, memory={})
 
-Context:
-{context}
-
-Question: {test["question"]}
-
-Answer:"""
-
-        answer = eval_llm(prompt, max_tokens=300)
         outputs.append({
             "question": test["question"],
             "chunks": chunks,
             "context": context,
             "answer": answer
         })
-        time.sleep(3)
- 
-    # save to cache
+
+        time.sleep(3)  # avoid Gemini rate limits
+
     with open(answers_path, "w") as f:
         json.dump(outputs, f, indent=2)
     print("Answers cached to answers_cache.json")
-    return outputs
-
-
+    return outputs 
 
 
 # ── METRIC 1: RETRIEVAL PRECISION ────────────────────────────
