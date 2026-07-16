@@ -32,7 +32,10 @@ regression, and clustering.
 # SECTION: Skills - AI
 
 Anshu's AI and LLM skills include LangGraph, Groq API, Prompt Engineering,
-Tool Orchestration, and RAG (Retrieval Augmented Generation). She has 
+Tool Orchestration, and RAG (Retrieval Augmented Generation).Her main focus is now on Agentic AI and Generative AI
+and LLM systems rather than traditional machine learning. While she has
+basic ML knowledge from earlier projects, she has deliberately shifted
+her focus to the more cutting-edge agentic AI space. She has 
 hands-on experience building Agentic AI systems and LLM-based pipelines. 
 She has worked with LangGraph to build stateful multi-node agent pipelines, 
 used the Groq API for fast LLM inference, and has practical experience with 
@@ -42,7 +45,7 @@ assistant project.
 
 # SECTION: Skills - Web and Backend
 
-Anshu's web and backend skills include Flask, REST APIs, Docker,
+Anshu's web and backend skills include Flask, FastAPI, REST APIs, Docker,
 Git, Render, and Netlify. She has built and deployed backend systems
 using Flask and understands REST API design. She is familiar with
 Docker for containerization, uses Git for version control, and has
@@ -72,7 +75,7 @@ and is live at https://agentic-resume-analyzer.netlify.app/
 Her second project is this Personal Assistant — an 
 AI powered talking portfolio built using a RAG 
 pipeline with ChromaDB, sentence transformers, 
-Gemini 3.5 Flash, and FastAPI. Recruiters can ask 
+Gemini 2.0 Flash, and FastAPI. Recruiters can ask 
 anything about Anshu's background or paste a job 
 description to get a live ResumeIQ analysis run 
 against her resume.
@@ -215,23 +218,22 @@ work, where two of her projects work together as an integrated system.
 
 # SECTION: Tech Stack - Personal Assistant
 
-The personal assistant is built using FastAPI for the async backend, 
-ChromaDB for local vector storage, sentence-transformers for embeddings, 
-and Gemini 2.0 Flash as the LLM for response generation. Anshu chose 
-ChromaDB over cloud vector databases because the data is small and 
-personal, making a local solution simpler and free. She chose not to use 
-LangGraph for this project unlike ResumeIQ, because the pipeline is 
-linear with no complex state management or conditional routing — adding 
-LangGraph would have been over-engineering. This decision demonstrates 
-her ability to choose the right tool for the right problem rather than 
-using the same stack for everything. Session memory is handled using a 
-simple in-memory dictionary rather than a database, keeping the 
-architecture lightweight for a portfolio use case.
+The backend technology stack of the personal assistant includes FastAPI
+as the async web framework, ChromaDB as the local vector database,
+all-MiniLM-L6-v2 sentence transformers for generating embeddings,
+and Gemini 3.5 Flash for LLM response generation. Session memory uses
+a simple in-memory Python dictionary — not a persistent database —
+which means memory clears on server restart. This is intentional for
+a portfolio project where persistent storage wasn't necessary. She chose not to use LangGraph for this project unlike ResumeIQ, because the pipeline is linear with no complex state management or conditional routing — adding LangGraph would have been over-engineering. This decision demonstrates her ability to choose the right tool for the right problem rather than using the same stack for everything. Session memory is handled using a simple in-memory dictionary rather than a database, keeping the architecture lightweight for a portfolio use case.
 
 # SECTION: Experience
 
-Anshu completed a Web Development internship at Scoutbizz International 
-from June 2025 to August 2025. During this internship she worked on 
+Anshu completed a 2 month Web Development internship at Scoutbizz International 
+from June 2025 to August 2025.This was a web development
+role — not an AI engineering role — where she worked on production level
+web applications and Shopify storefronts using HTML, CSS and Liquid
+templates. Her AI and machine learning experience comes entirely from
+her self-built projects: ResumeIQ and the Personal Assistant. During this internship she worked on 
 production-level web applications and client websites. She customized Shopify 
 storefronts using HTML, CSS, and Liquid templates, and collaborated with 
 designers and developers to improve website performance and UI quality.

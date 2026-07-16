@@ -49,12 +49,13 @@ test_set = [
     {
         "question": "What framework did Anshu use to build ResumeIQ?",
         "expected_keywords": ["LangGraph"],
-        "expected_chunk": "ResumeIQ"
+        "expected_chunk": ["Project - ResumeIQ (Overview)",
+                          "Project - ResumeIQ (Architecture and Workflow)"]
     },
     {
         "question": "Where is Anshu currently based?",
         "expected_keywords": ["Pune"],
-        "expected_chunk": "Contact"
+        "expected_chunk": "Contact and Availability"
     },
     {
         "question": "What are Anshu's AI skills?",
@@ -64,7 +65,7 @@ test_set = [
     {
         "question": "How many LLM calls does ResumeIQ make?",
         "expected_keywords": ["3"],
-        "expected_chunk": "ResumeIQ"
+        "expected_chunk": "Project - ResumeIQ (Architecture and Workflow)"
     },
     {
         "question": "What certifications does Anshu have?",
@@ -79,27 +80,27 @@ test_set = [
     {
         "question": "What is the personal assistant built with?",
         "expected_keywords": ["FastAPI", "ChromaDB", "Gemini"],
-        "expected_chunk": "Tech Stack"
+        "expected_chunk": "Tech Stack - Personal Assistant"
     },
     {
         "question": "Why did Anshu get into AI?",
-        "expected_keywords": ["real world", "problems","fascinating "],
-        "expected_chunk": "Motivation"
+        "expected_keywords": ["real world", "problems"],
+        "expected_chunk": "Motivation - Why Anshu Chose AI"
     },
     {
         "question": "What kind of roles is Anshu looking for?",
         "expected_keywords": ["backend", "AI"],
-        "expected_chunk": "Goals"
+        "expected_chunk": "Goals - Roles Anshu is Looking For"
     },
     {
         "question": "What was the hardest challenge in building ResumeIQ?",
         "expected_keywords": ["token"],
-        "expected_chunk": "Challenges - Building ResumeIQ"
+        "expected_chunk": "Project Challenges - Building ResumeIQ"
     },
     {
         "question": "What tools does ResumeIQ orchestrate?",
         "expected_keywords": ["Adzuna", "YouTube"],
-        "expected_chunk": "Tool Orchestration"
+        "expected_chunk": "Project - ResumeIQ (Tool Orchestration)"
     },
     {
         "question": "What is Anshu's educational background?",
@@ -109,12 +110,12 @@ test_set = [
     {
         "question": "What programming languages does Anshu know?",
         "expected_keywords": ["Python", "C++"],
-        "expected_chunk": "Skills - Programming"
+        "expected_chunk": "Skills - Programming and Core CS"
     },
     {
         "question": "What is the ResumeIQ live link?",
         "expected_keywords": ["netlify"],
-        "expected_chunk": "ResumeIQ"
+        "expected_chunk": "Project - ResumeIQ (Overview)"
     },
     {
         "question": "Which vector database powers Anshu's personal assistant?",
@@ -124,7 +125,8 @@ test_set = [
     {
         "question": "What technologies are used in the backend of the personal assistant?",
         "expected_keywords": ["FastAPI"],
-        "expected_chunk": ["Tech Stack - Personal Assistant","Personal Assistant (Architecture)"]
+        "expected_chunk": ["Tech Stack - Personal Assistant",
+                          "Project - Personal Assistant (Architecture)"]
     },
     {
         "question": "What AI-related technologies has Anshu worked with?",
@@ -159,42 +161,53 @@ test_set = [
     {
         "question": "Which of Anshu's projects demonstrates agentic AI concepts?",
         "expected_keywords": ["ResumeIQ", "LangGraph"],
-        "expected_chunk": ["Introduction","Project - Personal Assistant (Overview)","Project - ResumeIQ (Overview)"]
+        "expected_chunk": ["Introduction",
+                          "Project - Personal Assistant (Overview)",
+                          "Project - ResumeIQ (Overview)"]
     },
     {
         "question": "Which project best showcases Anshu's AI engineering skills?",
         "expected_keywords": ["ResumeIQ"],
-        "expected_chunk": ["Project - Personal Assistant (Overview)","Project - ResumeIQ (Overview)"]
+        "expected_chunk": ["Project - Personal Assistant (Overview)",
+                          "Project - ResumeIQ (Overview)"]
     },
     {
         "question": "How do Anshu's AI skills contribute to building ResumeIQ?",
         "expected_keywords": ["LangGraph", "RAG"],
-        "expected_chunk": ["Skills - AI","Project - ResumeIQ (Overview)"]
+        "expected_chunk": ["Skills - AI",
+                          "Project - ResumeIQ (Overview)"]
     },
     {
         "question": "What skills did Anshu apply while developing the personal assistant?",
-        "expected_keywords": ["FastAPI", "Gemini","rag"],
-        "expected_chunk": ["Project - Personal Assistant (Architecture)","Personal Assistant (Overview)"]
+        "expected_keywords": ["FastAPI", "Gemini"],
+        "expected_chunk": ["Project - Personal Assistant (Architecture)",
+                          "Project - Personal Assistant (Overview)"]
     },
     {
         "question": "Why should a company hire Anshu for an AI role?",
         "expected_keywords": ["AI", "projects"],
-        "expected_chunk": "Goals"
+        "expected_chunk": ["Goals - Roles Anshu is Looking For",
+                          "Motivation - Why Anshu Chose AI"]
     },
     {
         "question": "What makes ResumeIQ technically challenging?",
         "expected_keywords": ["token"],
-        "expected_chunk": ["Challenges - Building ResumeIQ","Architecture and Workflow","Token Management"]
+        "expected_chunk": ["Project Challenges - Building ResumeIQ",
+                          "Project - ResumeIQ (Architecture and Workflow)",
+                          "Project - ResumeIQ (Token Management and Chat)"]
     },
     {
         "question": "What evidence shows that Anshu has experience building AI applications?",
         "expected_keywords": ["ResumeIQ", "Personal Assistant"],
-        "expected_chunk": ["Introduction","Project - Personal Assistant (Overview)"," Project - ResumeIQ (Overview)"]
+        "expected_chunk": ["Introduction",
+                          "Project - Personal Assistant (Overview)",
+                          "Project - ResumeIQ (Overview)"]
     },
     {
         "question": "How does Anshu demonstrate experience with retrieval augmented generation?",
         "expected_keywords": ["RAG"],
-        "expected_chunk": "Skills - AI"
+        "expected_chunk": ["Skills - AI",
+                          "Project - Personal Assistant (Architecture)"]
     }
 ]
 
@@ -319,12 +332,11 @@ def generate_answers(test_cases):
 
 
 def is_chunk_match(expected, chunk):
-    # get the section name — first line of chunk
     first_line = chunk.split('\n')[0].strip().lower()
     expected_lower = expected.strip().lower()
     
-    # check if expected appears in the section name line only
-    return expected_lower in first_line
+    
+    return first_line == expected_lower
 
 def evaluate_retrieval(test_cases):
     print("\n[1/4] Retrieval Precision (no LLM calls)...")

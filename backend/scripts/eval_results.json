@@ -1,8 +1,4 @@
 {
-  "retrieval_precision": 0.9032,
-  "answer_accuracy": 0.871,
-  "semantic_similarity": 0.7104,
-  "faithfulness": 0.7485,
-  "num_queries": 31,
-  "context_recall": 0.7903
+  "retrieval_precision": 0.9355,
+  "num_queries": 31
 }
