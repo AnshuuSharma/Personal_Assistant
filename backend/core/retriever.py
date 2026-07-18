@@ -123,3 +123,5 @@ Chunks:
 
 def format_context(chunks):
     return "\n\n".join(chunks)
+
+_load_bm25()

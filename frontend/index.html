@@ -576,7 +576,7 @@ html, body {
 </div>
 
 <script>
-const API = '';
+const API = 'http://127.0.0.1:8000';
 let busy = false;
 let jdOpen = false;
 
@@ -728,7 +728,7 @@ async function doChat(txt) {
 
 
     removeTyping();
-    const msgDiv = addStreamingMsg(); // creates empty assistant bubble
+    const msgDiv = addStreamingMsg(); 
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
@@ -832,7 +832,15 @@ async function fetchButton(topic) {
 
 function addStreamingMsg() {
   const m = document.getElementById('messages');
+  if (!m) {
+        console.log('ERROR: messages div not found');
+        return null;
+    }
+
+    
   const d = document.createElement('div');
+
+
   d.className = 'msg-wrap assistant';
   d.innerHTML = `
     <div class="msg-label">anshu.ai</div>

@@ -18,6 +18,8 @@ from fastapi.responses import FileResponse
 from fastapi.responses import StreamingResponse
 import json
 
+import time
+
 
 
 load_dotenv()
@@ -70,12 +72,16 @@ async def chat(request: ChatRequest):
     user_query = request.message
     session_id = request.session_id
 
-    memory = get_memory(session_id, user_query)
-    context = route(user_query)
-    # response = llm_response(user_query, context, memory)
-    # add_to_history(session_id, user_query, response)
+    t0=time.time()
 
-    # return {"response": response}
+    memory = get_memory(session_id, user_query)
+
+    t1=time.time()
+    print(f"Memory retrieval : {t1-t0:.3f}s")
+    context = route(user_query)
+    
+    t2=time.time()
+    print(f"Rag retrieval : {t2-t1:.3f}s")
 
     full_response=""
     def generate():
@@ -111,6 +117,8 @@ async def chat(request: ChatRequest):
            print(f"Streaming error: {str(e)[:200]}")
            yield f"data: {json.dumps({'text': 'Something went wrong — please try again shortly!', 'done': True})}\n\n"
 
+        print(f"Total pre-stream:{t2-t0:.3f}s")
+        
     return StreamingResponse(
         generate(),
         media_type="text/event-stream",
