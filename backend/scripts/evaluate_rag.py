@@ -294,7 +294,7 @@ def generate_answers(test_cases):
         with open(answers_path, "r") as f:
             return json.load(f)
 
-    # import your actual pipeline
+   
     from core.llm import llm_response
 
     outputs = []
@@ -320,7 +320,7 @@ def generate_answers(test_cases):
             "answer": answer
         })
 
-        time.sleep(3)  # avoid Gemini rate limits
+        time.sleep(3)  
 
     with open(answers_path, "w") as f:
         json.dump(outputs, f, indent=2)
@@ -363,7 +363,10 @@ def evaluate_retrieval(test_cases):
         correct += int(hit)
         status = "✅" if hit else "❌"
         print(f"  {status} [{expected}] {test['question'][:45]}")
-        print(f"  Top chunk first line: {chunks[0].split(chr(10))[0][:70]}")
+        print("  Retrieved chunks:")
+        for i, chunk in enumerate(chunks, start=1):
+            first_line = chunk.split("\n")[0][:70]
+            print(f"    {i}. {first_line}")
 
         results.append({"question": test["question"], "hit": hit})
 
@@ -462,14 +465,27 @@ def evaluate_semantic_similarity(test_cases, ground_truths, outputs):
 
 # ── METRIC 4: FAITHFULNESS ────────────────────────────────────
 def evaluate_faithfulness(test_cases, outputs):
-    # test_cases = test_cases[-15:] 
-    # outputs = outputs[-15:]
     print("\n[4/4] Faithfulness (LLM-as-judge via Groq)...")
     scores = []
+    factual_scores = []
+    opinion_scores = []
     results = []
+
+    opinion_keywords = [
+        "should", "best", "showcases", "demonstrates",
+        "contributes", "evidence", "why should", "worth",
+        "recommend", "suitable", "fit for"
+    ]
 
     for i, (test, output) in enumerate(zip(test_cases, outputs)):
         print(f"  Judging {i+1}/{len(test_cases)}: {test['question'][:45]}")
+
+        # classify question type
+        is_opinion = any(
+            kw in test["question"].lower()
+            for kw in opinion_keywords
+        )
+        q_type = "opinion" if is_opinion else "factual"
 
         judge_prompt = f"""You are evaluating if an AI answer is faithful to its source context.
 
@@ -479,7 +495,7 @@ Definition of faithful:
 - HALLUCINATED: claim cannot be supported or inferred from context ❌
 
 Context:
-{output['context'][:1500]}
+{output['context'][:3000]}
 
 Answer:
 {output['answer']}
@@ -516,17 +532,31 @@ Respond with valid JSON only, no markdown:
             faith_score = 0.0
 
         status = "✅" if faith_score >= 0.8 else "❌"
-        print(f"  {status} score: {faith_score:.2%}")
+        print(f"  {status} [{q_type}] score: {faith_score:.2%}")
 
         scores.append(faith_score)
+        if is_opinion:
+            opinion_scores.append(faith_score)
+        else:
+            factual_scores.append(faith_score)
+
         results.append({
             "question": test["question"],
+            "question_type": q_type,
             "faithfulness_score": faith_score
         })
 
-    score = float(np.mean(scores))
-    print(f"  → Avg Faithfulness: {score:.2%}")
-    return score, results
+    # print breakdown
+    overall = float(np.mean(scores))
+    factual = float(np.mean(factual_scores)) if factual_scores else 0.0
+    opinion = float(np.mean(opinion_scores)) if opinion_scores else 0.0
+
+    print(f"\n  → Faithfulness breakdown:")
+    print(f"     Overall:  {overall:.2%} ({len(scores)} questions)")
+    print(f"     Factual:  {factual:.2%} ({len(factual_scores)} questions)")
+    print(f"     Opinion:  {opinion:.2%} ({len(opinion_scores)} questions)")
+
+    return overall, results
 
 # ── METRIC 5: CONTEXT RECALL ─────────────────────────────────
 def evaluate_context_recall(test_cases, ground_truths, outputs):

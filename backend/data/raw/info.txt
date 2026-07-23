@@ -11,13 +11,15 @@ product development or research.
 
 # SECTION: Education
 
-Anshu completed her Bachelor of Technology in Computer Science from Truba 
-Institute of Engineering and Information Technology, Bhopal, graduating in 
-2025 with a CGPA of 7.99. Before that, she completed her Class XII from 
-Vidisha, Madhya Pradesh under the CBSE board in 2021, scoring 81 percent.
-And class X from Vidisha under the CBSE board in 2019 scoring 88 percent 
+# SECTION: Education
 
-Here are the rewritten chunks with keywords in the first sentence:
+Anshu's educational background includes a Bachelor of Technology 
+degree in Computer Science from Truba Institute of Engineering 
+and Information Technology, Bhopal, graduating in 2025 with a 
+CGPA of 7.99. Her Class XII CBSE score was 81% from Vidisha, 
+Madhya Pradesh in 2021, and Class X CBSE score was 88% in 2019.
+
+
 # SECTION: Skills - Programming and Core CS
 
 Anshu's programming skills include Python, C++, and Scikit-learn.
