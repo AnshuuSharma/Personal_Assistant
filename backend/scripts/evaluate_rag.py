@@ -614,13 +614,77 @@ Respond with valid JSON only, no markdown:
     print(f"  → Avg Context Recall: {score:.2%}")
     return score, results
 
+# ── METRIC 6: ANSWER RELEVANCY ────────────────────────────────
+def evaluate_answer_relevancy(test_cases, outputs):
+    print("\n[6/6] Answer Relevancy (LLM-as-judge via Groq)...")
+    scores = []
+    results = []
+
+    for i, (test, output) in enumerate(zip(test_cases, outputs)):
+        print(f"  Judging {i+1}/{len(test_cases)}: {test['question'][:45]}")
+
+        judge_prompt = f"""You are evaluating whether an AI assistant's answer 
+is relevant to the question asked.
+
+Answer relevancy measures:
+1. Does the answer actually address the question?
+2. Is the answer focused or does it go off topic?
+3. Does the answer answer what was asked, not something adjacent?
+
+Question: {test['question']}
+Answer: {output['answer']}
+
+Score the answer relevancy from 0.0 to 1.0:
+- 1.0: Answer directly and completely addresses the question
+- 0.7: Answer mostly addresses question with minor irrelevant parts
+- 0.5: Answer partially addresses question, significant off-topic content
+- 0.3: Answer barely addresses question
+- 0.0: Answer is completely irrelevant or refuses without reason
+
+Note: An answer saying "I don't have that information" for a question
+whose answer is genuinely not available is RELEVANT (score: 0.9+)
+because it correctly addresses an unanswerable question.
+
+Respond with valid JSON only, no markdown:
+{{"relevancy_score": 0.9, "reason": "brief explanation"}}"""
+
+        try:
+            response = eval_llm(judge_prompt, max_tokens=150)
+            clean = response.strip()
+            if "```" in clean:
+                clean = clean.split("```")[1]
+                if clean.startswith("json"):
+                    clean = clean[4:]
+            clean = clean.strip()
+            parsed = json.loads(clean)
+            relevancy_score = float(parsed.get("relevancy_score", 0.0))
+            reason = parsed.get("reason", "")
+        except Exception as e:
+            print(f"    Parse error: {e} | response: {response[:100]}")
+            relevancy_score = 0.0
+            reason = "parse error"
+
+        status = "✅" if relevancy_score >= 0.7 else "❌"
+        print(f"  {status} score: {relevancy_score:.2%} — {reason[:60]}")
+
+        scores.append(relevancy_score)
+        results.append({
+            "question": test["question"],
+            "relevancy_score": relevancy_score,
+            "reason": reason
+        })
+
+    score = float(np.mean(scores))
+    print(f"  → Avg Answer Relevancy: {score:.2%}")
+    return score, results
+
 
 # ── MAIN ──────────────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--metric",
-        choices=["retrieval", "accuracy", "similarity", "faithfulness","recall","all"],
+        choices=["retrieval", "accuracy", "similarity", "faithfulness","recall","all", "relevancy"],
         default="all",
         help="Which metric to evaluate"
     )
@@ -630,7 +694,7 @@ def main():
     print("RAG PIPELINE EVALUATION")
     print("=" * 55)
 
-    retrieval_score = accuracy_score = similarity_score = faithfulness_score =recall_score = None
+    retrieval_score = accuracy_score = similarity_score = faithfulness_score =recall_score = relevancy_score = None
 
     
     if args.metric in ["retrieval"]:
@@ -658,6 +722,8 @@ def main():
             recall_score, _ = evaluate_context_recall(
                 test_set, ground_truths, outputs
             )
+        if args.metric in ["relevancy", "all"]:
+            relevancy_score, _ = evaluate_answer_relevancy(test_set, outputs)
 
     # summary
     print("\n" + "=" * 55)
@@ -673,6 +739,9 @@ def main():
         print(f"Faithfulness:           {faithfulness_score:.2%}")
     if recall_score is not None:
        print(f"Context Recall:          {recall_score:.2%}")
+    if relevancy_score is not None:
+        print(f"Answer Relevancy:       {relevancy_score:.2%}")
+    
     
     print(f"Test queries:           {len(test_set)}")
     print("=" * 55)
@@ -685,6 +754,7 @@ def main():
         "faithfulness": round(faithfulness_score, 4) if faithfulness_score else None,
         "num_queries": len(test_set),
         "context_recall": round(recall_score, 4) if recall_score else None,
+        "answer_relevancy": round(relevancy_score, 4) if relevancy_score else None,
     }.items() if v is not None}
 
     output_path = os.path.join(BASE_DIR, "eval_results.json")
