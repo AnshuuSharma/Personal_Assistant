@@ -19,7 +19,7 @@ from fastapi.responses import StreamingResponse
 import json
 
 import time
-
+import traceback
 
 
 load_dotenv()
@@ -179,8 +179,8 @@ async def button(request: ButtonRequest):
             yield f"data: {json.dumps({'text': '', 'done': True})}\n\n"
 
         except Exception as e:
-            print(f"Button streaming error: {str(e)[:200]}")
-            yield f"data: {json.dumps({'text': 'Something went wrong — please try again shortly!', 'done': True})}\n\n"
+             traceback.print_exc()
+             yield f"data: {json.dumps({'text': 'Something went wrong — please try again shortly!', 'done': True})}\n\n"
 
     return StreamingResponse(
         generate(),

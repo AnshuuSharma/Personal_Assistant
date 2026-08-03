@@ -96,7 +96,6 @@ def retrieve_with_rerank(question, eval_llm_fn, n_results=5):
     """
     Evaluation-only function.
     Fetches 10 candidates via hybrid search then uses LLM to rerank.
-    Do NOT use this in production — extra LLM call per query.
     """
     embedding = create_embeddings(question)
     candidates = retrieve(embedding, n_results=10, query_text=question)
