@@ -1,4 +1,3 @@
-# app.py
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -149,8 +148,11 @@ async def button(request: ButtonRequest):
 
     query_embedding = create_embeddings(query)
     n = 6 if request.topic == "projects" else 4
-    chunks = retrieve(query_embedding, n_results=n, query_text=query)
-    context = format_context(chunks)
+    chunks,out_of_scope = retrieve(query_embedding, n_results=n, query_text=query)
+    if out_of_scope:
+        context = None  # or "" -- see note below
+    else:
+        context = format_context(chunks)
 
     full_response = ""
 

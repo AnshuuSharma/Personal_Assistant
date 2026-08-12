@@ -105,13 +105,6 @@ RECRUITER'S QUESTION:
 
     for attempt in range(3):
         try:
-            # response = client.models.generate_content(
-            #     model="gemini-2.5-flash",  
-            #     contents=full_prompt,
-            #     config=types.GenerateContentConfig(
-            #         system_instruction=SYSTEM_PROMPT,
-            #     )
-            # )
             response = groq_client.chat.completions.create(
                 model="openai/gpt-oss-120b",
                 messages=[

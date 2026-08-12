@@ -10,9 +10,29 @@ VECTORDB_PATH = os.path.join(BASE_DIR, "..", "..", "vectorDB")
 client = chromadb.PersistentClient(path=VECTORDB_PATH)
 collection = client.get_or_create_collection("personal_info")
 
+
+# irrelevant cluster sat ~0.666-0.693, relevant cluster ~0.799-0.881
+LOW_THRESHOLD = 0.71   
+HIGH_THRESHOLD = 0.79   
+# between LOW and HIGH -> ambiguous: retrieve anyway, ask LLM to clarify
+
+OUT_OF_SCOPE_MESSAGE = (
+    "I'm Anshu's personal assistant, so I can only answer questions "
+    "about her background, skills, and projects. Could you ask "
+    "something related to that?"
+)
+
+CLARIFY_INSTRUCTION = (
+    "\n\nNote: the retrieved context is only a weak/partial match for "
+    "this question. If you can't confidently answer from it, ask the "
+    "user a clarifying question about what specifically they'd like "
+    "to know about Anshu, rather than guessing."
+)
+
 _all_docs = None
 _bm25 = None
 _all_ids = None
+
 
 def _load_bm25():
     global _all_docs, _bm25, _all_ids
@@ -32,11 +52,14 @@ def _load_bm25():
 def dense_retrieve(query_embedding, n_results=10):
     results = collection.query(
         query_embeddings=[query_embedding],
-        n_results=n_results
+        n_results=n_results,
+        include=["documents", "distances"]
     )
     docs = results["documents"][0]
     ids = results["ids"][0]
-    return docs, ids
+    distances = results["distances"][0]
+    similarities = [1 - d for d in distances]
+    return docs, ids, similarities
 
 
 def sparse_retrieve(query, n_results=10):
@@ -69,19 +92,31 @@ def reciprocal_rank_fusion(dense_docs, dense_ids, sparse_docs, sparse_ids, k=60)
 
 def retrieve(query_embedding, n_results=5, query_text=None):
     """
-    Hybrid retrieval combining dense + sparse via RRF.
-    Falls back to dense-only if query_text not provided.
-    """
-    if query_text is None:
-        results = collection.query(
-            query_embeddings=[query_embedding],
-            n_results=n_results
-        )
-        return results["documents"][0]
+    Hybrid retrieval combining dense + sparse via RRF, gated by a
+    two-threshold dense-similarity confidence check.
 
+    Returns (chunks, confidence) where confidence is one of:
+      "confident"      -> chunks is the fused/dense result list, answer normally
+      "low_confidence"  -> chunks is still returned, but caller should
+                            append CLARIFY_INSTRUCTION to the system
+                            prompt so the LLM asks for clarification
+      "out_of_scope"   -> chunks is [], caller should show
+                            OUT_OF_SCOPE_MESSAGE and skip the LLM call
+    """
     candidate_count = n_results * 2
 
-    dense_docs, dense_ids = dense_retrieve(query_embedding, candidate_count)
+    dense_docs, dense_ids, dense_similarities = dense_retrieve(query_embedding, candidate_count)
+
+    top_similarity = dense_similarities[0] if dense_similarities else -1
+
+    if top_similarity < LOW_THRESHOLD:
+        return [], "out_of_scope"
+
+    confidence = "confident" if top_similarity >= HIGH_THRESHOLD else "low_confidence"
+
+    if query_text is None:
+        return dense_docs[:n_results], confidence
+
     sparse_docs, sparse_ids = sparse_retrieve(query_text, candidate_count)
 
     fused = reciprocal_rank_fusion(
@@ -89,16 +124,20 @@ def retrieve(query_embedding, n_results=5, query_text=None):
         sparse_docs, sparse_ids
     )
 
-    return fused[:n_results]
+    return fused[:n_results], confidence
 
 
 def retrieve_with_rerank(question, eval_llm_fn, n_results=5):
     """
     Evaluation-only function.
-    Fetches 10 candidates via hybrid search then uses LLM to rerank.
+    Fetches candidates via hybrid search then uses LLM to rerank.
+    Do NOT use this in production -- extra LLM call per query.
     """
     embedding = create_embeddings(question)
-    candidates = retrieve(embedding, n_results=10, query_text=question)
+    candidates, confidence = retrieve(embedding, n_results=10, query_text=question)
+
+    if confidence == "out_of_scope":
+        return []
 
     rerank_prompt = f"""Given this question: "{question}"
 
@@ -122,5 +161,6 @@ Chunks:
 
 def format_context(chunks):
     return "\n\n".join(chunks)
+
 
 _load_bm25()
