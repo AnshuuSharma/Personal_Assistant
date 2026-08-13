@@ -20,6 +20,8 @@ import json
 import time
 import traceback
 
+from core.retriever import OUT_OF_SCOPE_MESSAGE,CLARIFY_INSTRUCTION
+
 
 load_dotenv()
 
@@ -70,30 +72,43 @@ async def root():
 async def chat(request: ChatRequest):
     user_query = request.message
     session_id = request.session_id
-
+ 
     t0=time.time()
-
+ 
     memory = get_memory(session_id, user_query)
-
+ 
     t1=time.time()
     print(f"Memory retrieval : {t1-t0:.3f}s")
-    context = route(user_query)
-    
+    context, confidence = route(user_query)
+ 
     t2=time.time()
-    print(f"Rag retrieval : {t2-t1:.3f}s")
-
+    print(f"Rag retrieval : {t2-t1:.3f}s (confidence={confidence})")
+ 
+    if confidence == "out_of_scope":
+        def generate_out_of_scope():
+            yield f"data: {json.dumps({'text': OUT_OF_SCOPE_MESSAGE, 'done': False})}\n\n"
+            yield f"data: {json.dumps({'text': '', 'done': True})}\n\n"
+        return StreamingResponse(
+            generate_out_of_scope(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "X-Accel-Buffering": "no"
+            }
+        )
+ 
     full_response=""
     def generate():
         nonlocal full_response
         try:
             provider, stream = llm_response_stream(user_query, context, memory)
-            print(f"DEBUG: provider={provider}, stream={stream}")  
-
+            print(f"DEBUG: provider={provider}, stream={stream}")
+ 
             if stream is None:
                print("DEBUG: stream is None, sending fallback message")
                yield f"data: {json.dumps({'text': 'I am a little busy right now — please try again!', 'done': True})}\n\n"
                return
-
+ 
             if provider == "gemini":
                 for chunk in stream:
                  print(f"DEBUG: gemini chunk = {chunk}")
@@ -107,17 +122,17 @@ async def chat(request: ChatRequest):
                 if delta:
                     full_response += delta
                     yield f"data: {json.dumps({'text': delta, 'done': False})}\n\n"
-
+ 
             add_to_history(session_id, user_query, full_response)
-            print(f"DEBUG: full_response = {full_response[:100]}") 
+            print(f"DEBUG: full_response = {full_response[:100]}")
             yield f"data: {json.dumps({'text': '', 'done': True})}\n\n"
-
+ 
         except Exception as e:
            print(f"Streaming error: {str(e)[:200]}")
            yield f"data: {json.dumps({'text': 'Something went wrong — please try again shortly!', 'done': True})}\n\n"
-
+ 
         print(f"Total pre-stream:{t2-t0:.3f}s")
-        
+ 
     return StreamingResponse(
         generate(),
         media_type="text/event-stream",
@@ -132,7 +147,7 @@ async def chat(request: ChatRequest):
 @app.post("/button")
 async def button(request: ButtonRequest):
     session_id = request.session_id
-
+ 
     button_queries = {
         "skills":         "What are all of Anshu's technical skills?",
         "education":      "Tell me about Anshu's educational background",
@@ -141,30 +156,45 @@ async def button(request: ButtonRequest):
         "certifications": "What certifications does Anshu have?",
         "contact":        "How can I contact Anshu or reach out to her?"
     }
-
+ 
     query = button_queries.get(request.topic)
     if not query:
         return {"response": "Invalid button topic"}
-
+ 
     query_embedding = create_embeddings(query)
     n = 6 if request.topic == "projects" else 4
-    chunks,out_of_scope = retrieve(query_embedding, n_results=n, query_text=query)
-    if out_of_scope:
-        context = None  # or "" -- see note below
-    else:
-        context = format_context(chunks)
-
+    chunks, confidence = retrieve(query_embedding, n_results=n, query_text=query)
+ 
+    if confidence == "out_of_scope":
+        # shouldn't realistically happen for fixed button queries -- but
+        # handle it defensively rather than crash downstream
+        def generate_out_of_scope():
+            yield f"data: {json.dumps({'text': OUT_OF_SCOPE_MESSAGE, 'done': False})}\n\n"
+            yield f"data: {json.dumps({'text': '', 'done': True})}\n\n"
+        return StreamingResponse(
+            generate_out_of_scope(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "X-Accel-Buffering": "no"
+            }
+        )
+ 
+    context = format_context(chunks)
+    if confidence == "low_confidence":
+        context += CLARIFY_INSTRUCTION  
+ 
     full_response = ""
-
+ 
     def generate():
         nonlocal full_response
         try:
-            provider, stream = llm_response_stream(query, context, memory={})  # unpack tuple correctly
-
+            provider, stream = llm_response_stream(query, context, memory={})
+ 
             if stream is None:
                 yield f"data: {json.dumps({'text': 'Something went wrong — please try again!', 'done': True})}\n\n"
                 return
-
+ 
             if provider == "gemini":
                 for chunk in stream:
                     if chunk.text:
@@ -176,14 +206,14 @@ async def button(request: ButtonRequest):
                     if delta:
                         full_response += delta
                         yield f"data: {json.dumps({'text': delta, 'done': False})}\n\n"
-
+ 
             add_to_history(session_id, query, full_response)
             yield f"data: {json.dumps({'text': '', 'done': True})}\n\n"
-
+ 
         except Exception as e:
              traceback.print_exc()
              yield f"data: {json.dumps({'text': 'Something went wrong — please try again shortly!', 'done': True})}\n\n"
-
+ 
     return StreamingResponse(
         generate(),
         media_type="text/event-stream",
@@ -192,7 +222,6 @@ async def button(request: ButtonRequest):
             "X-Accel-Buffering": "no"
         }
     )
-
 # ─── RESUMEIQ ENDPOINT ───────────────────────────────────────
 
 @app.post("/analyze")
